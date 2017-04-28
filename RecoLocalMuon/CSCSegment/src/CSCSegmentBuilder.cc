@@ -114,9 +114,53 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits,
         // Add the segments to master collection
         oc.put((*chIt), segv.begin(), segv.end());
     }
+
+
+    if (chambers.size() > 0) { // test if wire and strip digis are accessible from here
+
+       //CSCDetId tmpId = chambers[0];
+       //CSCWireDigiCollection::Range rwired = wires->get( tmpId );
+       //CSCStripDigiCollection::Range rstripd = strips->get( tmpId );
+
+       for ( CSCStripDigiCollection::DigiRangeIterator it = strips->begin(); it != strips->end(); ++it ){
+
+           const CSCDetId& id = (*it).first;
+           //const CSCLayer* layer = getLayer( id );
+           const CSCStripDigiCollection::Range& rstripd = (*it).second;
+
+          // Skip if no strip digis in this layer
+          if ( rstripd.second == rstripd.first ) continue;
+ 
+          const CSCDetId& sDetId = id;
+
+          // This is used to test for gaps in layers and needs to be initialized here 
+
+          /*
+          if ( layer_idx == 0 ) {
+             old_id = sDetId;
+          }
+          */
+
+          //CSCDetId compId = sDetId;
+          CSCWireDigiCollection::Range rwired = wires->get( sDetId );
+
+          std::cout << "endcap: " << id.endcap() 
+               << ", station: " << id.station() 
+               << ", ring: " << id.ring() 
+               << ", chamber: " << id.chamber()  
+               << ", layer: " << id.layer() << std::endl;
+
+       }
+ 
+    } // test if wire and strip digis are accessible from here
 }
 
 void CSCSegmentBuilder::setGeometry(const CSCGeometry* geom) {
 	geom_ = geom;
+}
+
+// MAY NOT NEED !FIX!
+const CSCLayer* CSCSegmentBuilder::getLayer( const CSCDetId& detId )  {
+  return geom_->layer(detId);
 }
 

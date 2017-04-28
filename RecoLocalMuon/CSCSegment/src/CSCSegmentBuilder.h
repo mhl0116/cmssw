@@ -21,6 +21,7 @@
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
+class CSCLayer;
 class CSCGeometry;
 class CSCSegmentAlgorithm;
 
@@ -45,6 +46,8 @@ public:
     /** Cache pointer to geometry _for current event_
      */
     void setGeometry(const CSCGeometry* geom);
+
+    const CSCLayer* getLayer( const CSCDetId& detId );
 
 private:
 
