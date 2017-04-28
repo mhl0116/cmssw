@@ -66,7 +66,9 @@ CSCSegmentBuilder::~CSCSegmentBuilder() {
   }
 }
 
-void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCollection& oc) {
+void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, 
+                              const CSCWireDigiCollection* wires,
+                              const CSCStripDigiCollection* strips,CSCSegmentCollection& oc) {
   	
   LogDebug("CSCSegment|CSC")<< "Total number of rechits in this event: " << recHits->size();
 
