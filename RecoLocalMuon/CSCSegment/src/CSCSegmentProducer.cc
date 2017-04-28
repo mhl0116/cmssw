@@ -17,8 +17,8 @@
 
 CSCSegmentProducer::CSCSegmentProducer(const edm::ParameterSet& pas) : iev(0) {
 	
-    m_token_wire = consumes<CSCWireDigiCollection>( pas.getParameter<edm::InputTag>("inputObjects") );
-    m_token_strip = consumes<CSCStripDigiCollection>( pas.getParameter<edm::InputTag>("inputObjects") );
+    m_token_wire = consumes<CSCWireDigiCollection>( pas.getParameter<edm::InputTag>("inputObjects_wire") );
+    m_token_strip = consumes<CSCStripDigiCollection>( pas.getParameter<edm::InputTag>("inputObjects_strip") );
     m_token = consumes<CSCRecHit2DCollection>( pas.getParameter<edm::InputTag>("inputObjects") );
     segmentBuilder_ = new CSCSegmentBuilder(pas); // pass on the PS
 

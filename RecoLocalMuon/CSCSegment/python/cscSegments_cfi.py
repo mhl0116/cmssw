@@ -8,6 +8,8 @@ from RecoLocalMuon.CSCSegment.CSCSegmentAlgorithmST_cfi import *
 cscSegments = cms.EDProducer("CSCSegmentProducer",
     # Define input
     inputObjects = cms.InputTag("csc2DRecHits"),
+    inputObjects_wire = cms.InputTag("muonCSCDigis", "MuonCSCWireDigi"),
+    inputObjects_strip = cms.InputTag("muonCSCDigis", "MuonCSCStripDigi"),
     # Choice of the building algo: 1 SK, 2 TC, 3 DF, 4 ST, ...
     algo_type = cms.int32(4),
     # std::vector<edm::ParameterSet>
