@@ -84,7 +84,10 @@ CSCSegAlgoUF::~CSCSegAlgoUF() {
 }
 
 
-std::vector<CSCSegment> CSCSegAlgoUF::run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) {
+std::vector<CSCSegment> CSCSegAlgoUF::run(const CSCChamber* aChamber, 
+                                          const ChamberHitContainer& rechits,
+                                          const ChamberWireContainer& wires,
+                                          const ChamberStripContainer& strips) {
 
   // Set member variable
   theChamber = aChamber; 

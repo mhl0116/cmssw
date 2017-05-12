@@ -92,6 +92,8 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits,
     for(chIt=chambers.begin(); chIt != chambers.end(); ++chIt) {
 
         std::vector<const CSCRecHit2D*> cscRecHits;
+        std::vector<LayerWireContainer> cscWires;
+        std::vector<LayerStripContainer> cscStrips;
         const CSCChamber* chamber = geom_->chamber(*chIt);
         
         CSCRangeMapAccessor acc;
@@ -103,11 +105,39 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits,
             hitPerLayer[(*rechit).cscDetId().layer()-1]++;
             cscRecHits.push_back(&(*rechit));
         }    
+/*
+        std::vector<int> wirePerLayer(6);
+        for(CSCWireDigiCollection::DigiRangeIterator it = range_w.first; wire != range_w.second; wire++) {
+
+            wirePerLayer[(*wire).cscDetId().layer()-1]++;
+            cscWires.push_back(&(*wire));
+        }
+
+        std::vector<int> stripPerLayer(6);
+        for(CSCStripDigiCollection::const_iterator strip = range_s.first; strip != range_s.second; strip++) {
+            
+            stripPerLayer[(*strip).cscDetId().layer()-1]++;
+            cscStrips.push_back(&(*strip));
+        }
+*/
+
+        for (int i = 0; i < 6; i++) {
+
+            if (hitPerLayer[i] == 0) continue;
+
+            CSCDetId tmpId = CSCDetId(chIt->endcap(), chIt->station(), chIt->ring(), chIt->chamber(), i+1);
+            CSCWireDigiCollection::Range range_w = wires->get(tmpId);
+            CSCStripDigiCollection::Range range_s = strips->get(tmpId);
+ 
+            cscWires.push_back(std::make_pair(i+1, range_w) );
+            cscStrips.push_back(std::make_pair(i+1, range_s) );
+
+        }
         
         LogDebug("CSCSegment|CSC") << "found " << cscRecHits.size() << " rechits in chamber " << *chIt;
             
         // given the chamber select the appropriate algo... and run it
-        std::vector<CSCSegment> segv = algoMap[chamber->specs()->chamberTypeName()]->run(chamber, cscRecHits);
+        std::vector<CSCSegment> segv = algoMap[chamber->specs()->chamberTypeName()]->run(chamber, cscRecHits, cscWires, cscStrips);
 
         LogDebug("CSCSegment|CSC") << "found " << segv.size() << " segments in chamber " << *chIt;
 
@@ -115,44 +145,6 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits,
         oc.put((*chIt), segv.begin(), segv.end());
     }
 
-
-    if (chambers.size() > 0) { // test if wire and strip digis are accessible from here
-
-       //CSCDetId tmpId = chambers[0];
-       //CSCWireDigiCollection::Range rwired = wires->get( tmpId );
-       //CSCStripDigiCollection::Range rstripd = strips->get( tmpId );
-
-       for ( CSCStripDigiCollection::DigiRangeIterator it = strips->begin(); it != strips->end(); ++it ){
-
-           const CSCDetId& id = (*it).first;
-           //const CSCLayer* layer = getLayer( id );
-           const CSCStripDigiCollection::Range& rstripd = (*it).second;
-
-          // Skip if no strip digis in this layer
-          if ( rstripd.second == rstripd.first ) continue;
- 
-          const CSCDetId& sDetId = id;
-
-          // This is used to test for gaps in layers and needs to be initialized here 
-
-          /*
-          if ( layer_idx == 0 ) {
-             old_id = sDetId;
-          }
-          */
-
-          //CSCDetId compId = sDetId;
-          CSCWireDigiCollection::Range rwired = wires->get( sDetId );
-
-          std::cout << "endcap: " << id.endcap() 
-               << ", station: " << id.station() 
-               << ", ring: " << id.ring() 
-               << ", chamber: " << id.chamber()  
-               << ", layer: " << id.layer() << std::endl;
-
-       }
- 
-    } // test if wire and strip digis are accessible from here
 }
 
 void CSCSegmentBuilder::setGeometry(const CSCGeometry* geom) {

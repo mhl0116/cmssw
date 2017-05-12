@@ -27,6 +27,10 @@ class CSCSegmentAlgorithm;
 
 class CSCSegmentBuilder {
 public:
+
+    /// Typedefs
+    typedef std::pair<int, const CSCWireDigiCollection::Range& > LayerWireContainer;
+    typedef std::pair<int, const CSCStripDigiCollection::Range& > LayerStripContainer;
    
     /** Configure the algorithm via ctor.
      * Receives ParameterSet percolated down from EDProducer

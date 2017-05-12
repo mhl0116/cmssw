@@ -24,6 +24,8 @@
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <deque>
 #include <vector>
@@ -37,6 +39,8 @@ public:
   /// Typedefs
 
   typedef std::vector<const CSCRecHit2D*> ChamberHitContainer;
+  typedef std::vector< std::pair<int, const CSCWireDigiCollection::Range& > > ChamberWireContainer;
+  typedef std::vector< std::pair<int, const CSCStripDigiCollection::Range& > > ChamberStripContainer;
   typedef std::vector < std::vector<const CSCRecHit2D* > > Segments;
   typedef std::deque<bool> BoolContainer;
 
@@ -61,7 +65,10 @@ public:
   /**
    * Build segments for all desired groups of hits
    */
-  std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits); 
+  std::vector<CSCSegment> run(const CSCChamber* aChamber, 
+                              const ChamberHitContainer& rechits,
+                              const ChamberWireContainer& wires,
+                              const ChamberStripContainer& strips); 
 
   /**
    * Build groups of rechits that are separated in x and y to save time on the segment finding

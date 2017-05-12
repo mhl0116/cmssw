@@ -14,6 +14,8 @@
  */
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include <DataFormats/CSCRecHit/interface/CSCSegment.h>
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
 
@@ -29,7 +31,11 @@ public:
 
     /** Run the algorithm = build the segments in this chamber
     */
-    virtual std::vector<CSCSegment> run(const CSCChamber* chamber, const std::vector<const CSCRecHit2D*>& rechits) = 0;  
+    //virtual std::vector<CSCSegment> run(const CSCChamber* chamber, const std::vector<const CSCRecHit2D*>& rechits) = 0;  
+
+    virtual std::vector<CSCSegment> run(const CSCChamber* chamber, const std::vector<const CSCRecHit2D*>& rechits,
+                                        const std::vector< std::pair<int, const CSCWireDigiCollection::Range& > >& wires, 
+                                        const std::vector< std::pair<int, const CSCStripDigiCollection::Range& > >& strips ) = 0;
 
     private:
 };
