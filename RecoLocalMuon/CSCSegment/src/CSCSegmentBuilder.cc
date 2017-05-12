@@ -105,21 +105,6 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits,
             hitPerLayer[(*rechit).cscDetId().layer()-1]++;
             cscRecHits.push_back(&(*rechit));
         }    
-/*
-        std::vector<int> wirePerLayer(6);
-        for(CSCWireDigiCollection::DigiRangeIterator it = range_w.first; wire != range_w.second; wire++) {
-
-            wirePerLayer[(*wire).cscDetId().layer()-1]++;
-            cscWires.push_back(&(*wire));
-        }
-
-        std::vector<int> stripPerLayer(6);
-        for(CSCStripDigiCollection::const_iterator strip = range_s.first; strip != range_s.second; strip++) {
-            
-            stripPerLayer[(*strip).cscDetId().layer()-1]++;
-            cscStrips.push_back(&(*strip));
-        }
-*/
 
         for (int i = 0; i < 6; i++) {
 
@@ -128,7 +113,7 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits,
             CSCDetId tmpId = CSCDetId(chIt->endcap(), chIt->station(), chIt->ring(), chIt->chamber(), i+1);
             CSCWireDigiCollection::Range range_w = wires->get(tmpId);
             CSCStripDigiCollection::Range range_s = strips->get(tmpId);
- 
+
             cscWires.push_back(std::make_pair(i+1, range_w) );
             cscStrips.push_back(std::make_pair(i+1, range_s) );
 

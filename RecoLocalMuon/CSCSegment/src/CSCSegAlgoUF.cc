@@ -89,6 +89,21 @@ std::vector<CSCSegment> CSCSegAlgoUF::run(const CSCChamber* aChamber,
                                           const ChamberWireContainer& wires,
                                           const ChamberStripContainer& strips) {
 
+/* REMOVE THIS
+  std::cout << std::endl;
+  for (int i = 0; i < int(wires.size()); i++) {
+
+   
+      if (wires[i].second.first != wires[i].second.second) std::cout << "layer: " << wires[i].first << " has wire digis !" << std::endl;
+
+      }
+
+  for (int i = 0; i < int(strips.size()); i++) {
+
+      if (strips[i].second.first != strips[i].second.second) std::cout << "layer: " << strips[i].first << " has strip digis " << std::endl;
+
+      }
+*/
   // Set member variable
   theChamber = aChamber; 
 
