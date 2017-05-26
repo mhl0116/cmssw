@@ -111,18 +111,20 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits,
             if (hitPerLayer[i] == 0) continue;
 
             CSCDetId tmpId = CSCDetId(chIt->endcap(), chIt->station(), chIt->ring(), chIt->chamber(), i+1);
+
             CSCWireDigiCollection::Range range_w = wires->get(tmpId);
             CSCStripDigiCollection::Range range_s = strips->get(tmpId);
 
-            cscWires.push_back(std::make_pair(i+1, range_w) );
-            cscStrips.push_back(std::make_pair(i+1, range_s) );
+            cscWires.push_back(std::make_pair(getLayer(tmpId), range_w) );
+            cscStrips.push_back(std::make_pair(getLayer(tmpId), range_s) );
 
         }
         
         LogDebug("CSCSegment|CSC") << "found " << cscRecHits.size() << " rechits in chamber " << *chIt;
             
         // given the chamber select the appropriate algo... and run it
-        std::vector<CSCSegment> segv = algoMap[chamber->specs()->chamberTypeName()]->run(chamber, cscRecHits, cscWires, cscStrips);
+//        std::vector<CSCSegment> segv = algoMap[chamber->specs()->chamberTypeName()]->run(chamber, cscRecHits, cscWires, cscStrips);
+        std::vector<CSCSegment> segv = algoMap[chamber->specs()->chamberTypeName()]->run(chamber, cscWires, cscStrips);
 
         LogDebug("CSCSegment|CSC") << "found " << segv.size() << " segments in chamber " << *chIt;
 

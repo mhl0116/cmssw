@@ -30,17 +30,17 @@
 #include <deque>
 #include <vector>
 
+class CSCLayer;
 class CSCSegAlgoShowering;
 class CSCSegAlgoUF : public CSCSegmentAlgorithm {
-
 
 public:
 
   /// Typedefs
 
   typedef std::vector<const CSCRecHit2D*> ChamberHitContainer;
-  typedef std::vector< std::pair<int, const CSCWireDigiCollection::Range& > > ChamberWireContainer;
-  typedef std::vector< std::pair<int, const CSCStripDigiCollection::Range& > > ChamberStripContainer;
+  typedef std::vector< std::pair<const CSCLayer*, const CSCWireDigiCollection::Range& > > ChamberWireContainer;
+  typedef std::vector< std::pair<const CSCLayer*, const CSCStripDigiCollection::Range& > > ChamberStripContainer;
   typedef std::vector < std::vector<const CSCRecHit2D* > > Segments;
   typedef std::deque<bool> BoolContainer;
 
@@ -69,6 +69,11 @@ public:
                               const ChamberHitContainer& rechits,
                               const ChamberWireContainer& wires,
                               const ChamberStripContainer& strips); 
+
+  std::vector<CSCSegment> run(const CSCChamber* aChamber,
+                              const ChamberWireContainer& wires,
+                              const ChamberStripContainer& strips);
+
 
   /**
    * Build groups of rechits that are separated in x and y to save time on the segment finding

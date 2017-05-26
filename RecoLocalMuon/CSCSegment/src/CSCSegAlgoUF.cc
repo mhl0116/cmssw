@@ -84,11 +84,34 @@ CSCSegAlgoUF::~CSCSegAlgoUF() {
 }
 
 
+std::vector<CSCSegment> CSCSegAlgoUF::run(const CSCChamber* aChamber,
+                                          const ChamberWireContainer& wires,
+                                          const ChamberStripContainer& strips) {
+  
+  std::vector<CSCSegment> test;
+ 
+  /*
+ 
+   initialize two tables 
+	1, wires: Chamber specific nWireGroupsPerLayer * 6 (add one more dimension or use timing info to filter table)
+	2, strips: also chamber specific 80(*2)*6 , maybe use half strip (later) (must filte with timing)
+
+  */
+
+  // digi to matrix
+ 
+  return test;
+
+}
+
+
 std::vector<CSCSegment> CSCSegAlgoUF::run(const CSCChamber* aChamber, 
                                           const ChamberHitContainer& rechits,
                                           const ChamberWireContainer& wires,
                                           const ChamberStripContainer& strips) {
 
+// below path has example to trace wire and strip geometry info from wire and strip id
+// /raid/raid9/mhl/CSC_Run2/CMSSW_dev/CMSSW_8_0_20/src/RecoLocalMuon/CSCRecHitD/src/CSCMake2DRecHit.cc
 /* REMOVE THIS
   std::cout << std::endl;
   for (int i = 0; i < int(wires.size()); i++) {

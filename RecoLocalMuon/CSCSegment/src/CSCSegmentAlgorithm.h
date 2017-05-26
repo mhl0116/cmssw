@@ -33,9 +33,14 @@ public:
     */
     //virtual std::vector<CSCSegment> run(const CSCChamber* chamber, const std::vector<const CSCRecHit2D*>& rechits) = 0;  
 
-    virtual std::vector<CSCSegment> run(const CSCChamber* chamber, const std::vector<const CSCRecHit2D*>& rechits,
-                                        const std::vector< std::pair<int, const CSCWireDigiCollection::Range& > >& wires, 
-                                        const std::vector< std::pair<int, const CSCStripDigiCollection::Range& > >& strips ) = 0;
+//    virtual std::vector<CSCSegment> run(const CSCChamber* chamber, const std::vector<const CSCRecHit2D*>& rechits,
+//                                        const std::vector< std::pair<int, const CSCWireDigiCollection::Range& > >& wires, 
+//                                        const std::vector< std::pair<int, const CSCStripDigiCollection::Range& > >& strips ) = 0;
+
+    virtual std::vector<CSCSegment> run(const CSCChamber* chamber, 
+                                        const std::vector< std::pair<const CSCLayer*, const CSCWireDigiCollection::Range& > >& wires,
+                                        const std::vector< std::pair<const CSCLayer*, const CSCStripDigiCollection::Range& > >& strips ) = 0;
+
 
     private:
 };
