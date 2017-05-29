@@ -39,8 +39,8 @@ public:
   /// Typedefs
 
   typedef std::vector<const CSCRecHit2D*> ChamberHitContainer;
-  typedef std::vector< std::pair<const CSCLayer*, const CSCWireDigiCollection::Range& > > ChamberWireContainer;
-  typedef std::vector< std::pair<const CSCLayer*, const CSCStripDigiCollection::Range& > > ChamberStripContainer;
+  typedef std::vector< std::pair<const CSCLayer*, CSCWireDigiCollection::Range > > ChamberWireContainer;
+  typedef std::vector< std::pair<const CSCLayer*, CSCStripDigiCollection::Range > > ChamberStripContainer;
   typedef std::vector < std::vector<const CSCRecHit2D* > > Segments;
   typedef std::deque<bool> BoolContainer;
 
@@ -71,8 +71,8 @@ public:
                               const ChamberStripContainer& strips); 
 
   std::vector<CSCSegment> run(const CSCChamber* aChamber,
-                              const ChamberWireContainer& wires,
-                              const ChamberStripContainer& strips);
+                              ChamberWireContainer& wires,
+                              ChamberStripContainer& strips);
 
 
   /**

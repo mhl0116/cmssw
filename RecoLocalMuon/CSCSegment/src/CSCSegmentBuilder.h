@@ -31,8 +31,8 @@ public:
     /// Typedefs
 //    typedef std::pair<int, const CSCWireDigiCollection::Range& > LayerWireContainer;
 //    typedef std::pair<int, const CSCStripDigiCollection::Range& > LayerStripContainer;
-    typedef std::pair< const CSCLayer*, const CSCWireDigiCollection::Range& > LayerWireContainer;
-    typedef std::pair< const CSCLayer*, const CSCStripDigiCollection::Range& > LayerStripContainer;
+    typedef std::pair<const CSCLayer*, CSCWireDigiCollection::Range > LayerWireContainer;
+    typedef std::pair<const CSCLayer*, CSCStripDigiCollection::Range > LayerStripContainer;
    
     /** Configure the algorithm via ctor.
      * Receives ParameterSet percolated down from EDProducer

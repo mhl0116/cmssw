@@ -112,11 +112,19 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits,
 
             CSCDetId tmpId = CSCDetId(chIt->endcap(), chIt->station(), chIt->ring(), chIt->chamber(), i+1);
 
+            //std::cout << tmpId.endcap() << ", " << tmpId.station() << ", " << tmpId.ring() << ", " << tmpId.chamber() << std::endl;
+//            std::cout << "layer: " << getLayer(tmpId).id().layer() << std::endl;
+
             CSCWireDigiCollection::Range range_w = wires->get(tmpId);
             CSCStripDigiCollection::Range range_s = strips->get(tmpId);
 
-            cscWires.push_back(std::make_pair(getLayer(tmpId), range_w) );
-            cscStrips.push_back(std::make_pair(getLayer(tmpId), range_s) );
+            const CSCLayer* tmpCSCLayer = getLayer(tmpId);
+
+            cscWires.push_back(std::make_pair(tmpCSCLayer, range_w) );
+            cscStrips.push_back(std::make_pair(tmpCSCLayer, range_s) );
+
+//            std::cout << tmpCSCLayer->chamber()->id() << std::endl;
+//            std::cout << std::make_pair(tmpCSCLayer, range_w).first->chamber()->id() << std::endl;
 
         }
         

@@ -26,6 +26,11 @@
 #include <iostream>
 #include <string>
 
+#include "TMatrixDSparse.h"
+//#include "TMatrixDSparsefwd.h"
+//#include "TMatrixDUtils.h"
+//#include "TMatrixD.h"
+//#include "TMatrixD.h"
 
 /* constructor
  *
@@ -85,24 +90,92 @@ CSCSegAlgoUF::~CSCSegAlgoUF() {
 
 
 std::vector<CSCSegment> CSCSegAlgoUF::run(const CSCChamber* aChamber,
-                                          const ChamberWireContainer& wires,
-                                          const ChamberStripContainer& strips) {
+                                          ChamberWireContainer& wires,
+                                          ChamberStripContainer& strips) {
   
   std::vector<CSCSegment> test;
  
-  /*
- 
-   initialize two tables 
-	1, wires: Chamber specific nWireGroupsPerLayer * 6 (add one more dimension or use timing info to filter table)
-	2, strips: also chamber specific 80(*2)*6 , maybe use half strip (later) (must filte with timing)
-
-  */
-
   // digi to matrix
+
+  const int nWireGroups = wires[0].first->geometry()->numberOfWireGroups();
+  const int nStrips = strips[0].first->geometry()->numberOfStrips();
+//  std::cout << wires[0].first->chamber()->id() << std::endl;
+
+
+  TMatrixTSparse<double> wgsPerChamber(6, nWireGroups);
+  TMatrixTSparse<double> stripsPerChamber(6, nStrips);
+  std::vector<int> rows_v; std::vector<int> cols_v; std::vector<double> data_v;
+
+  //std::cout << "wire size: " << wires.size() << ", strip size: " << strips.size() << std::endl;
+
+  for (int i = 0; i < int(wires.size()) ; i++) {
+
+      const CSCWireDigiCollection::Range& rwired = wires[i].second ;
+      for (CSCWireDigiCollection::const_iterator it = rwired.first; it != rwired.second; ++it) {
+
+//           std::cout << "wire size: " << wires.size() << ", strip size: " << strips.size() << std::endl;
+
+          const CSCWireDigi wdigi = *it;
+          CSCDetId id = wires[i].first->chamber()->id();
+
+/*
+ * add this back when other problems are solved
  
+          if(isDeadWG( id, wdigi.getWireGroup())){
+            continue;
+            }
+*/
+          rows_v.push_back(id.layer()); 
+          cols_v.push_back(wdigi.getWireGroup());
+          data_v.push_back(1);
+
+          }
+      }
+
+  int* rows_a = &rows_v[0];
+  int* cols_a = &cols_v[0];
+  double* data_a = &data_v[0];
+
+  std::cout << "int(rows_v.size()): " << int(rows_v.size()) << std::endl;
+  if (rows_v.size() > 0)  wgsPerChamber.SetMatrixArray(int(rows_v.size()), rows_a, cols_a, data_a);
+
+  //TMatrixDSparse a;
+  const Int_t *rIndex = wgsPerChamber.GetRowIndexArray();
+  const Int_t *cIndex = wgsPerChamber.GetColIndexArray();
+  const Double_t *pData = wgsPerChamber.GetMatrixArray();
+  printf("-\n");
+  for (Int_t irow = 0; irow < wgsPerChamber.GetNrows(); irow++) {
+      const Int_t sIndex = rIndex[irow];
+      const Int_t eIndex = rIndex[irow+1];
+      for (Int_t index = sIndex; index < eIndex; index++) {
+          const Int_t icol = cIndex[index];
+          const Double_t data = pData[index];
+          printf("data(%d,%d) = %.4e\n",irow+wgsPerChamber.GetRowLwb(),
+          icol+wgsPerChamber.GetColLwb(),data);
+      }
+  }
+
   return test;
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 std::vector<CSCSegment> CSCSegAlgoUF::run(const CSCChamber* aChamber, 

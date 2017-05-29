@@ -38,8 +38,8 @@ public:
 //                                        const std::vector< std::pair<int, const CSCStripDigiCollection::Range& > >& strips ) = 0;
 
     virtual std::vector<CSCSegment> run(const CSCChamber* chamber, 
-                                        const std::vector< std::pair<const CSCLayer*, const CSCWireDigiCollection::Range& > >& wires,
-                                        const std::vector< std::pair<const CSCLayer*, const CSCStripDigiCollection::Range& > >& strips ) = 0;
+                                        std::vector< std::pair<const CSCLayer*, CSCWireDigiCollection::Range > >& wires,
+                                        std::vector< std::pair<const CSCLayer*, CSCStripDigiCollection::Range > >& strips ) = 0;
 
 
     private:
