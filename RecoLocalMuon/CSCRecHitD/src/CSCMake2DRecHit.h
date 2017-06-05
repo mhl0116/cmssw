@@ -11,8 +11,10 @@
  */
 //---- Possible changes from Stoyan Stoynev - NU
 
-#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
+//#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
+#include <DataFormats/CSCRecHit/interface/CSCWireHit.h>
+//#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
+#include "DataFormats/CSCRecHit/interface/CSCStripHit.h"
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCFindPeakTime.h>
 

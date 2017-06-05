@@ -4,8 +4,8 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromStripOnly.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromWireOnly.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCMake2DRecHit.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHitCollection.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHitCollection.h>
+//#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHitCollection.h>
+//#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHitCollection.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRangeMapForRecHit.h>
  
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
@@ -48,7 +48,7 @@ CSCRecHitDBuilder::~CSCRecHitDBuilder() {
 
 
 void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCWireDigiCollection* wiredc,
-                               CSCRecHit2DCollection& oc ) {
+                               CSCRecHit2DCollection& oc, CSCWireHitCollection& oc_w, CSCStripHitCollection& oc_s ) {
   LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] build entered";
 
   if ( !geom_ ) throw cms::Exception("MissingGeometry") << "[CSCRecHitDBuilder::getLayer] Missing geometry" << std::endl;
@@ -123,7 +123,9 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     // now build collection of wire only hits !  
     std::vector<CSCWireHit> const & cscWireHit = hitsFromWireOnly_->runWire(compId, layer, rwired);
 
-   
+    oc_w.put( sDetId, cscWireHit.begin(), cscWireHit.end()) ;
+    oc_s.put( sDetId, cscStripHit.begin(), cscStripHit.end()) ;
+
     
     // Build 2D hit for all possible strip-wire pairs 
     // overlapping within this layer

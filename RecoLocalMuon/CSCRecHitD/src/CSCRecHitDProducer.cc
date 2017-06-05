@@ -15,6 +15,9 @@
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
+#include <DataFormats/CSCRecHit/interface/CSCWireHitCollection.h>
+#include <DataFormats/CSCRecHit/interface/CSCStripHitCollection.h>
+
 
 CSCRecHitDProducer::CSCRecHitDProducer( const edm::ParameterSet& ps ) : 
   iRun( 0 ),   
@@ -34,6 +37,9 @@ CSCRecHitDProducer::CSCRecHitDProducer( const edm::ParameterSet& ps ) :
 
   // register what this produces
   produces<CSCRecHit2DCollection>();
+  produces<CSCWireHitCollection>();
+  produces<CSCStripHitCollection>();
+
 
 }
 
@@ -69,13 +75,24 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
 
   // Create empty collection of rechits  
   auto oc = std::make_unique<CSCRecHit2DCollection>();
+  auto oc_w = std::make_unique<CSCWireHitCollection>();
+  auto oc_s = std::make_unique<CSCStripHitCollection>();
 
   // Fill the CSCRecHit2DCollection
-  recHitBuilder_->build( stripDigis.product(), wireDigis.product(), *oc);
+  recHitBuilder_->build( stripDigis.product(), wireDigis.product(), *oc, *oc_w, *oc_s);
 
   // Put collection in event
   LogTrace("CSCRecHit")<< "[CSCRecHitDProducer] putting collection of " << oc->size() << " rechits into event.";
+  LogTrace("CSCRecHit")<< "[CSCRecHitDProducer] putting collection of " << oc_w->size() << " wire hits into event.";
+  LogTrace("CSCRecHit")<< "[CSCRecHitDProducer] putting collection of " << oc_s->size() << " strip hits into event.";
+  std::cout << "[CSCRecHitDProducer] putting collection of " << oc->size() << " rechits into event." << std::endl;
+  std::cout << "[CSCRecHitDProducer] putting collection of " << oc_w->size() << " wire hits into event." << std::endl;
+  std::cout << "[CSCRecHitDProducer] putting collection of " << oc_s->size() << " strip hits into event." << std::endl;
+  std::cout << std::endl;
+
   ev.put(std::move(oc));
+  ev.put(std::move(oc_w));
+  ev.put(std::move(oc_s));
 
 }
 

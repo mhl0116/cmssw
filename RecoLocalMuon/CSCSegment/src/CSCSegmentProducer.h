@@ -12,6 +12,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
+#include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
 class CSCSegmentBuilder; 
@@ -28,6 +30,8 @@ public:
 private:
     int iev; // events through
     CSCSegmentBuilder* segmentBuilder_;
+    edm::EDGetTokenT<CSCWireDigiCollection> m_token_wire;
+    edm::EDGetTokenT<CSCStripDigiCollection> m_token_strip;
     edm::EDGetTokenT<CSCRecHit2DCollection> m_token;
 };
 

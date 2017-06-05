@@ -23,6 +23,8 @@
  */
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
+#include <DataFormats/CSCRecHit/interface/CSCWireHitCollection.h>
+#include <DataFormats/CSCRecHit/interface/CSCStripHitCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 
@@ -57,7 +59,7 @@ class CSCRecHitDBuilder
    */
   
   void build( const CSCStripDigiCollection* stripds, const CSCWireDigiCollection* wireds,
-	      CSCRecHit2DCollection& oc );
+	      CSCRecHit2DCollection& oc, CSCWireHitCollection& oc_w, CSCStripHitCollection& oc_s );
   
   /**
    * Cache pointer to geometry so it can be passed downstream

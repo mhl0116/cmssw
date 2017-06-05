@@ -6,7 +6,8 @@
  */
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromWireOnly.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
+//#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
+#include <DataFormats/CSCRecHit/interface/CSCWireHit.h>
 
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>

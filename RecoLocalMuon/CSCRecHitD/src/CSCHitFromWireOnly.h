@@ -18,7 +18,8 @@
  *
  */
 
-#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
+//#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
+#include <DataFormats/CSCRecHit/interface/CSCWireHit.h>
 
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 

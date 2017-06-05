@@ -29,6 +29,21 @@
   <class name="edm::ClonePolicy<CSCSegment>"/> <!-- Root6 -->
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> > >"/>
   <class name="CSCSegmentRef"/>
+  <class name="CSCWireHit"/>
+  <class name="std::vector<CSCWireHit>"/>
+  <class name="std::vector<CSCWireHit*>"/>
+  <class name="edm::OwnVector<CSCWireHit,edm::ClonePolicy<CSCWireHit> >"/>
+  <class name="edm::ClonePolicy<CSCWireHit>"/> <!-- Root6 -->
+  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCWireHit,edm::ClonePolicy<CSCWireHit> >,edm::ClonePolicy<CSCWireHit> >"/>
+  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCWireHit,edm::ClonePolicy<CSCWireHit> >,edm::ClonePolicy<CSCWireHit> > >"/>
+  <class name="CSCStripHit"/>
+  <class name="std::vector<CSCStripHit>"/>
+  <class name="std::vector<CSCStripHit*>"/>
+  <class name="edm::OwnVector<CSCStripHit,edm::ClonePolicy<CSCStripHit> >"/>
+  <class name="edm::ClonePolicy<CSCStripHit>"/> <!-- Root6 -->
+  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCStripHit,edm::ClonePolicy<CSCStripHit> >,edm::ClonePolicy<CSCStripHit> >"/>
+  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCStripHit,edm::ClonePolicy<CSCStripHit> >,edm::ClonePolicy<CSCStripHit> > >"/>
+
 </selection>
 
 <exclusion>

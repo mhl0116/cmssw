@@ -3,7 +3,9 @@
 #include "RecoLocalMuon/CSCRecHitD/src/CSCHitFromStripOnly.h"
 #include "RecoLocalMuon/CSCRecHitD/src/CSCStripData.h"
 #include "RecoLocalMuon/CSCRecHitD/src/CSCStripHitData.h"
-#include "RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h"
+//#include "RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h"
+#include "DataFormats/CSCRecHit/interface/CSCStripHit.h"
+
 #include "RecoLocalMuon/CSCRecHitD/src/CSCPedestalChoice.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
