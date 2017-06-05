@@ -14,13 +14,6 @@
  *
  */
 
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromStripOnly.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromWireOnly.h>
-
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 
@@ -28,7 +21,6 @@
 
 class CSCGeometry;
 class CSCSegmentAlgorithm;
-class CSCRecoConditions;
 
 class CSCSegmentBuilder {
 public:
@@ -44,32 +36,15 @@ public:
     /** Find rechits in each CSCChamber, build CSCSegment's in each chamber,
      *  and fill into output collection.
      */
-    /*
-    void build(const CSCRecHit2DCollection* rechits, 
-               const CSCWireDigiCollection* wiredc,
-               const CSCStripDigiCollection* stripdc, CSCSegmentCollection& oc);
-    */
-    void build(const CSCWireDigiCollection* wiredc,
-               const CSCStripDigiCollection* stripdc,
-               CSCSegmentCollection& oc);
+    void build(const CSCRecHit2DCollection* rechits, CSCSegmentCollection& oc);
 
     /** Cache pointer to geometry _for current event_
      */
     void setGeometry(const CSCGeometry* geom);
-    void setConditions ( CSCRecoConditions* reco );
- 
-    std::vector<CSCStripHit> MakeStripDigiHits(const CSCStripDigiCollection* stripdc);
-    std::vector<CSCWireHit> MakeWireDigiHits(const CSCWireDigiCollection* wiredc);
 
-    const CSCLayer* getLayer( const CSCDetId& detId );
- 
 private:
 
     const CSCGeometry* geom_;
-    CSCRecoConditions* recoConditions_;
-    CSCHitFromStripOnly*   hitsFromStripOnly_;
-    CSCHitFromWireOnly*    hitsFromWireOnly_;
-
     std::map<std::string, CSCSegmentAlgorithm*> algoMap;
 };
 
