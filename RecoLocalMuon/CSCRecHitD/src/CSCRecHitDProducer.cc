@@ -85,11 +85,13 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
   LogTrace("CSCRecHit")<< "[CSCRecHitDProducer] putting collection of " << oc->size() << " rechits into event.";
   LogTrace("CSCRecHit")<< "[CSCRecHitDProducer] putting collection of " << oc_w->size() << " wire hits into event.";
   LogTrace("CSCRecHit")<< "[CSCRecHitDProducer] putting collection of " << oc_s->size() << " strip hits into event.";
+
+/*
   std::cout << "[CSCRecHitDProducer] putting collection of " << oc->size() << " rechits into event." << std::endl;
   std::cout << "[CSCRecHitDProducer] putting collection of " << oc_w->size() << " wire hits into event." << std::endl;
   std::cout << "[CSCRecHitDProducer] putting collection of " << oc_s->size() << " strip hits into event." << std::endl;
   std::cout << std::endl;
-
+*/
   ev.put(std::move(oc));
   ev.put(std::move(oc_w));
   ev.put(std::move(oc_s));

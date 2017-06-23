@@ -15,6 +15,8 @@
  */
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
+#include <DataFormats/CSCRecHit/interface/CSCWireHitCollection.h>
+#include <DataFormats/CSCRecHit/interface/CSCStripHitCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
@@ -36,7 +38,9 @@ public:
     /** Find rechits in each CSCChamber, build CSCSegment's in each chamber,
      *  and fill into output collection.
      */
-    void build(const CSCRecHit2DCollection* rechits, CSCSegmentCollection& oc);
+    void build(const CSCRecHit2DCollection* rechits,
+               const CSCWireHitCollection* wirehits,
+               const CSCStripHitCollection* striphits, CSCSegmentCollection& oc);
 
     /** Cache pointer to geometry _for current event_
      */

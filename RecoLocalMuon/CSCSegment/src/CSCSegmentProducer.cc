@@ -18,6 +18,8 @@
 CSCSegmentProducer::CSCSegmentProducer(const edm::ParameterSet& pas) : iev(0) {
 	
     m_token = consumes<CSCRecHit2DCollection>( pas.getParameter<edm::InputTag>("inputObjects") );
+    m_token_wire = consumes<CSCWireHitCollection>( pas.getParameter<edm::InputTag>("inputObjects") );
+    m_token_strip = consumes<CSCStripHitCollection>( pas.getParameter<edm::InputTag>("inputObjects") );
     segmentBuilder_ = new CSCSegmentBuilder(pas); // pass on the PS
 
   	// register what this produces
@@ -43,13 +45,19 @@ void CSCSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	
     // get the collection of CSCRecHit2D
     edm::Handle<CSCRecHit2DCollection> cscRecHits;
+    edm::Handle<CSCWireHitCollection> cscWireHits;
+    edm::Handle<CSCStripHitCollection> cscStripHits;
     ev.getByToken( m_token, cscRecHits);
+    ev.getByToken( m_token_wire, cscWireHits);
+    ev.getByToken( m_token_strip, cscStripHits);
+
 
     // create empty collection of Segments
     auto oc = std::make_unique<CSCSegmentCollection>();
 
   	// fill the collection
-    segmentBuilder_->build(cscRecHits.product(), *oc); //@@ FILL oc
+    segmentBuilder_->build(cscRecHits.product(), cscWireHits.product(), cscStripHits.product(), *oc); //@@ FILL oc
+//    segmentBuilder_->build(cscRecHits.product(), *oc); //@@ FILL oc
 
     // put collection in event
     ev.put(std::move(oc));
