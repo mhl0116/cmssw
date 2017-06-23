@@ -16,6 +16,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include "TMatrixDSparse.h"
 
 CSCSegAlgoUF::CSCSegAlgoUF(const edm::ParameterSet& ps)
   : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoUF"), sfit_(nullptr) {
@@ -56,8 +57,14 @@ std::vector<CSCSegment> CSCSegAlgoUF::run(const CSCChamber* aChamber, const Cham
                                                                       const ChamberWireHitContainer& wirehits,
                                                                       const ChamberStripHitContainer& striphits){
   theChamber = aChamber;
+
+  // get number of wire groups and strips for this chamber
+  nWireGroups = theChamber->layer(1)->geometry()->numberOfWireGroups();
+  nStrips = theChamber->layer(1)->geometry()->numberOfStrips();
+  //std::cout << "This chamber has " << nWireGroups << " wire groups and " << nStrips << " strips " << std::endl;
+
   return buildSegments(wirehits,striphits);
-//  return buildSegments(rechits);
+  //return buildSegments(rechits);
 
 }
 
@@ -67,6 +74,17 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
 
   ChamberWireHitContainer wirehits = uwirehits;
   ChamberStripHitContainer striphits = ustriphits;
+
+  // 1, fill matrix, make UF event display type matrix, wire filled by timebin, strip filled by adc (s_adc or s_adcRaw)
+  // 2, scan and save preSeg
+
+  TMatrixTSparse<double> wHitsPerChamber(6, nWireGroups);
+  TMatrixTSparse<double> sHitsPerChamber(6, nStrips);
+
+  // need to associate matrix with wire and strip hits to fully use information like timing and charge
+
+  std::cout << "test wHit is at layer: " << wirehits[0]->cscDetId().layer() << " and wire group: " << wirehits[0]->wHitPos() << std::endl;
+  std::cout << "test sHit is at layer: " << striphits[0]->cscDetId().layer() << " and strip : " << striphits[0]->sHitPos() << std::endl;
 
   std::vector<CSCSegment> segments;
   return segments;

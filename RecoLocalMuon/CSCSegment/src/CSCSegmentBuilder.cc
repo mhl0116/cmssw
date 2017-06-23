@@ -138,10 +138,10 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits,
         
         LogDebug("CSCSegment|CSC") << "found " << cscRecHits.size() << " rechits in chamber " << *chIt;
 
+        std::cout << std::endl;
         std::cout << "found " << cscRecHits.size() << " rechits in chamber " << *chIt << std::endl;
         std::cout << "found " << cscWireHits.size() << " wirehits in chamber " << *chIt << std::endl;
         std::cout << "found " << cscStripHits.size() << " striphits in chamber " << *chIt << std::endl;
-        std::cout << std::endl;
             
         // given the chamber select the appropriate algo... and run it
         std::vector<CSCSegment> segv = algoMap[chamber->specs()->chamberTypeName()]->run(chamber, cscRecHits, cscWireHits, cscStripHits);

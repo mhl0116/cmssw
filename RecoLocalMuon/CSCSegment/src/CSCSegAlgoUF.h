@@ -90,6 +90,9 @@ public:
 
 private:
 
+    int nWireGroups;
+    int nStrips;
+
     /// Utility functions 
     // Could be static at the moment, but in principle one
     // might like CSCSegmentizer-specific behaviour?
