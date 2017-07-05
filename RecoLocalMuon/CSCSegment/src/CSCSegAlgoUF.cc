@@ -86,10 +86,31 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
   std::cout << "test wHit is at layer: " << wirehits[0]->cscDetId().layer() << " and wire group: " << wirehits[0]->wHitPos() << std::endl;
   std::cout << "test sHit is at layer: " << striphits[0]->cscDetId().layer() << " and strip : " << striphits[0]->sHitPos() << std::endl;
 
+  FillWireMatrix(wHitsPerChamber, wirehits); 
+  FillStripMatrix(sHitsPerChamber, striphits);
+
   std::vector<CSCSegment> segments;
   return segments;
 }
 
+
+void CSCSegAlgoUF::FillWireMatrix(TMatrixTSparse<double>& whitsMatrix, ChamberWireHitContainer whits) {
+
+     std::vector<int> rows_v; std::vector<int> cols_v; std::vector<double> data_v;
+     for (unsigned int i = 0; i < whits.size(); i++) {
+         const CSCWireHit* whit = whits[i];
+         int wLayer = whit.cscDetId().layer;
+
+         for (unsigned int j = 0; j < whit.wgroups().size(); j++) {
+             int wg = (whit.wgroups())[j]; cols_v.push_back(wg);
+             int wgTimeBinOn = (whit.timeBinsOn())[j]; data_v.push_back(wgTimeBinOn);
+             rows_v.push_back(wLayer);
+
+         }
+     } 
+     int* rows_a = &rows_v[0]; int cols_a = &cols_v[0]; int data_a = &data_v[0];
+     whitsMatrix.SetMatrixArray(int(rows_v.size()),rows_a,cols_a,data_a);
+}
 
 std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberHitContainer& urechits) {
   ChamberHitContainer rechits = urechits;
