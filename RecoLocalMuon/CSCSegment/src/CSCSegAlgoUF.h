@@ -32,6 +32,7 @@
 
 #include <vector>
 
+#include "TMatrixDSparse.h"
 
 class CSCSegFit;
 
@@ -78,7 +79,8 @@ public:
     std::vector<CSCSegment> buildSegments(const ChamberHitContainer& rechits);
     std::vector<CSCSegment> buildSegments(const ChamberWireHitContainer& wirehits, 
                                           const ChamberStripHitContainer& striphits);
-
+    void FillWireMatrix(TMatrixTSparse<double>& whitsMatrix, ChamberWireHitContainer whits);
+    void FillStripMatrix(TMatrixTSparse<double>& shitsMatrix, ChamberStripHitContainer shits);
     //    std::vector<CSCSegment> assambleRechitsInSegments(const ChamberHitContainer& rechits, int iadd, BoolContainer& used, BoolContainer& used3p, int *recHits_per_layer, const LayerIndex& layerIndex, std::vector<CSCSegment> segments);
 
     /**
