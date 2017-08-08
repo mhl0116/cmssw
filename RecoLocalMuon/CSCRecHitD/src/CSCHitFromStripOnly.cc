@@ -197,7 +197,6 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
          }
        }
   /// L1A (end Looping)
-
    CSCStripHit striphit( id, strippos, tmax_cluster, theL1AStrips, strips_adc, strips_adcRaw, /// L1A
 			  theConsecutiveStrips.at(imax), theClosestMaximum.at(imax), aDeadStrip);
    hitsInLayer.push_back( striphit ); 
@@ -532,7 +531,6 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
   for ( size_t i = 0; i != data.size(); ++i ) {
     auto const & w = data[i].ph();
     auto const & wRaw = data[i].phRaw();
-
     // (Require ADC to be > 0.)
     // No later studies suggest that this only do harm
     /*
@@ -543,8 +541,11 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
 
 
     // Fill the data members 
-    std::copy( w.begin(), w.end(), std::back_inserter(strips_adc));
-    std::copy( wRaw.begin(), wRaw.end(), std::back_inserter(strips_adcRaw));
+    // OLD: save all 4 time bins for each strip, why ? and it is not used elsewhere
+    // std::copy( w.begin(), w.end(), std::back_inserter(strips_adc));
+    // std::copy( wRaw.begin(), wRaw.end(), std::back_inserter(strips_adcRaw));
+    strips_adc.push_back(w[0]+w[1]+w[2]);
+    strips_adcRaw.push_back(wRaw[0]+wRaw[1]+wRaw[2]);
 
     if ( data[i].strip() < 1 ){
       LogTrace("CSCRecHit") << "[CSCHitFromStripOnly::findHitOnStripPosition] problem in indexing of strip, strip= " 

@@ -77,7 +77,8 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
 	    aDeadWG = wire_in_cluster.at(wire_in_cluster.size()-1) + 1;
 	  }
 	}
-       // Set time bins for wire hit as the time bins of the central wire digi, lower of central two if an even number of digis.
+       // BEFORE: Set time bins for wire hit as the time bins of the central wire digi, lower of central two if an even number of digis.
+       // NEW: Save time bin on for each wire group in wire cluster (wire cluster -> wire hit)
       std::vector <int> timeBinsOn; timeBinsOn.clear();//=wire_cluster[n_wgroup/2].getTimeBinsOn();
       for (int wg = 0; wg < n_wgroup; wg++) {timeBinsOn.push_back(wire_cluster[wg].getTimeBin());}
       //CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, isDeadWGAround, timeBinsOn );
