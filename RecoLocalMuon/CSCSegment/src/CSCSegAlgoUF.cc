@@ -7,6 +7,7 @@
 
 #include "CSCSegAlgoUF.h"
 #include "CSCSegFit.h"
+#include "CSCWireSegment.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -75,9 +76,6 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
   ChamberWireHitContainer wirehits = uwirehits;
   ChamberStripHitContainer striphits = ustriphits;
 
-//  TMatrixDSparse wHitsPerChamber(6, nWireGroups);
-//  TMatrixDSparse sHitsPerChamber(6, nStrips);
-
   TH2F* wHitsPerChamber = new TH2F("wHitsPerChamber","",nWireGroups,0,nWireGroups-1,6,0,6);
   TH2F* sHitsPerChamber = new TH2F("sHitsPerChamber","",nStrips,0,nStrips-1,6,0,6);
 
@@ -90,26 +88,47 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
    then create a lib or class saving patterns
   */ 
 
-//  TH2F* wirePattern = new TH2F("wirePattern","",nWireGroups,0,nWireGroups-1,6,0,6);
+  std::list<CSCWireSegment> wireSegs;
+  // ALL 14 are hardcoded
 
   double w_rows[14] = {0,0,0,1,1,2,3,3,4,4,4,5,5,5}; 
   double w_cols[14] = {-2,-1,0,-1,0,0,0,1,0,1,2,0,1,2};
-  double w_data[14] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+  double w_data[14] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1}; // this is scan pattern
+ 
+  std::cout << "nWireGroups: " << nWireGroups << std::endl;
+  for (int i = 0; i < nWireGroups; i++) {
+      double w_cols_scan[14] = {}; 
+      int keywg = nWireGroups-i;
 
-  for (int i = 0; i < nWireGroups; i++){
-      double w_cols_scan[14] = {};
-
-      for (int j = 0; j < 14; j++) {
-          w_cols_scan[j] = w_cols[j] + i;
-          }
+      for (int j = 0; j < 14; j++) w_cols_scan[j] = w_cols[j] + keywg - 1; // scan from wide end of chamber
 
       TH2F* wirePattern = new TH2F("wirePattern","",nWireGroups,0,nWireGroups-1,6,0,6);
-      wirePattern->FillN(14,w_cols_scan,w_rows,w_data);
-//      std::cout << "wire pattern before, j: " << i << std::endl; WriteTH2F(wirePattern);
-      wirePattern->Multiply(wHitsPerChamber);
-      if (wirePattern->Integral() > 0) WriteTH2F(wirePattern);
-      delete wirePattern;         
+      wirePattern->FillN(14,w_cols_scan,w_rows,w_data); wirePattern->Multiply(wHitsPerChamber); // scan is done here
+  
+      TH1D* hitsLayer = wirePattern->ProjectionY(); 
+      hitsLayer->Divide(hitsLayer); int nLayerWithHits = hitsLayer->Integral();// find layers with rechits 
+      if (nLayerWithHits <= 3) {delete wirePattern; continue;} // 3 is hardcoded
+
+      wireSegs.push_back( CSCWireSegment(keywg,nLayerWithHits,wirePattern) );
+
+      WriteTH2F(wirePattern);  delete wirePattern;         
+
       }
+
+  // fake wire segment cleaning
+  for (auto it = wireSegs.begin(); it != wireSegs.end(); it++) {
+      auto it2 = std::next(it,1); 
+
+      if (it2 == wireSegs.end() || (it2->keyWG() - it->keyWG() > 1) ) continue;
+      if (it2->nLayersWithHits() < it->nLayersWithHits() ) {
+         wireSegs.erase(it2); 
+
+         } else { 
+                wireSegs.erase(it);
+                }
+      }
+
+  std::cout << "nWireSegments: " << wireSegs.size() << ", keyWG: " << wireSegs.begin()->keyWG() << std::endl;
  
   std::vector<CSCSegment> segments;
   return segments;
@@ -121,14 +140,16 @@ void CSCSegAlgoUF::WriteTH2F(TH2F* hist) {
      for (int i = 1; i < hist->GetNbinsY()+1; i++) {
          for (int j = 1; j < hist->GetNbinsX()+1; j++) {
 
-             std::cout << hist->GetBinContent(j,i) << "  ";
+             if (hist->GetBinContent(j,i)==0)
+                {std::cout << "-";} else {std::cout << 1;}
 
              }
          std::cout << std::endl;
          }
-         std::cout << std::endl;
+     std::cout << std::endl;
 
 }
+
 
 void CSCSegAlgoUF::FillWireMatrix(TH2F* whitsMatrix, ChamberWireHitContainer whits) {
 
@@ -144,7 +165,6 @@ void CSCSegAlgoUF::FillWireMatrix(TH2F* whitsMatrix, ChamberWireHitContainer whi
          }
      } 
      double* rows_a = &rows_v[0]; double* cols_a = &cols_v[0]; double* data_a = &data_v[0];
-//     whitsMatrix.SetMatrixArray(int(rows_v.size()),rows_a,cols_a,data_a);
      whitsMatrix->FillN(int(rows_v.size()), cols_a, rows_a, data_a);     
 }
 
@@ -167,7 +187,6 @@ void CSCSegAlgoUF::FillStripMatrix(TH2F* shitsMatrix, ChamberStripHitContainer s
          }
      }
      double* rows_a = &rows_v[0]; double* cols_a = &cols_v[0]; double* data_a = &data_v[0];
-//     shitsMatrix.SetMatrixArray(int(rows_v.size()),rows_a,cols_a,data_a);
      shitsMatrix->FillN(int(rows_v.size()), cols_a, rows_a, data_a);
 }
 
