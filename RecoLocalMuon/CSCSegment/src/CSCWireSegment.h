@@ -20,6 +20,7 @@ private:
 
   int theKeyWG;
   int nlayersWithHits;
+//  TH2F* wirePattern;
 
 };
 #endif

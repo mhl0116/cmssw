@@ -8,6 +8,8 @@
 #include "CSCSegAlgoUF.h"
 #include "CSCSegFit.h"
 #include "CSCWireSegment.h"
+#include "CSCStripSegment.h"
+#include "CSCStripSegmentPattern.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -58,7 +60,7 @@ std::vector<CSCSegment> CSCSegAlgoUF::run(const CSCChamber* aChamber, const Cham
                                                                       const ChamberWireHitContainer& wirehits,
                                                                       const ChamberStripHitContainer& striphits){
   theChamber = aChamber;
-  std::cout << theChamber->id() << std::endl;
+//  std::cout << theChamber->id() << std::endl;
   // get number of wire groups and strips for this chamber
   nWireGroups = theChamber->layer(1)->geometry()->numberOfWireGroups();
   nStrips = theChamber->layer(1)->geometry()->numberOfStrips();
@@ -77,58 +79,142 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
   ChamberStripHitContainer striphits = ustriphits;
 
   TH2F* wHitsPerChamber = new TH2F("wHitsPerChamber","",nWireGroups,0,nWireGroups-1,6,0,6);
-  TH2F* sHitsPerChamber = new TH2F("sHitsPerChamber","",nStrips,0,nStrips-1,6,0,6);
+  TH2F* sHitsPerChamber = new TH2F("sHitsPerChamber","",2*nStrips,0,2*nStrips-1,6,0,6);
 
-  FillWireMatrix(wHitsPerChamber, wirehits); //wHitsPerChamber.Print();
-  FillStripMatrix(sHitsPerChamber, striphits); //sHitsPerChamber.Print();
+  FillWireMatrix(wHitsPerChamber, wirehits); 
+  FillStripMatrix(sHitsPerChamber, striphits); 
 
-  /*
-   for now put one wire pattern and one strip pattern here, 
-   finalize procedure till find # of wire/strip seg per chamber,
-   then create a lib or class saving patterns
-  */ 
+//  WriteTH2F(wHitsPerChamber);
+//  WriteTH2F(sHitsPerChamber);
+
+
+/* scan for wire segment */
 
   std::list<CSCWireSegment> wireSegs;
-  // ALL 14 are hardcoded
-
   double w_rows[14] = {0,0,0,1,1,2,3,3,4,4,4,5,5,5}; 
   double w_cols[14] = {-2,-1,0,-1,0,0,0,1,0,1,2,0,1,2};
   double w_data[14] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1}; // this is scan pattern
  
-  std::cout << "nWireGroups: " << nWireGroups << std::endl;
   for (int i = 0; i < nWireGroups; i++) {
       double w_cols_scan[14] = {}; 
-      int keywg = nWireGroups-i;
+      int thisKeyWG = nWireGroups-i;
 
-      for (int j = 0; j < 14; j++) w_cols_scan[j] = w_cols[j] + keywg - 1; // scan from wide end of chamber
+      for (int j = 0; j < 14; j++) w_cols_scan[j] = w_cols[j] + thisKeyWG - 1; // scan from wide end of chamber
 
       TH2F* wirePattern = new TH2F("wirePattern","",nWireGroups,0,nWireGroups-1,6,0,6);
-      wirePattern->FillN(14,w_cols_scan,w_rows,w_data); wirePattern->Multiply(wHitsPerChamber); // scan is done here
+      wirePattern->Reset();
+      wirePattern->FillN(14,w_cols_scan,w_rows,w_data);
+      wirePattern->Multiply(wHitsPerChamber); // scan is done here
   
       TH1D* hitsLayer = wirePattern->ProjectionY(); 
-      hitsLayer->Divide(hitsLayer); int nLayerWithHits = hitsLayer->Integral();// find layers with rechits 
-      if (nLayerWithHits <= 3) {delete wirePattern; continue;} // 3 is hardcoded
+      hitsLayer->Divide(hitsLayer);
+      int thisNLayer = hitsLayer->Integral();// find layers with w hits 
 
-      wireSegs.push_back( CSCWireSegment(keywg,nLayerWithHits,wirePattern) );
+      if (thisNLayer <= 3) {delete wirePattern; continue;} // 3 is hardcoded
+      if (int(wireSegs.size()) == 0 ) {
+         wireSegs.push_back( CSCWireSegment(thisKeyWG, thisNLayer, wirePattern) );
+         delete wirePattern; continue;
 
-      WriteTH2F(wirePattern);  delete wirePattern;         
+         }
 
+      CSCWireSegment lastSeg = wireSegs.back();
+      int lastKeyWG =  lastSeg.keyWG();
+      int lastNLayer = lastSeg.nLayersWithHits();
+
+      if (thisKeyWG - lastKeyWG < -1) {
+         wireSegs.push_back( CSCWireSegment(thisKeyWG, thisNLayer, wirePattern) );
+   
+         } else if ((thisKeyWG - lastKeyWG == -1) && (thisNLayer > lastNLayer) ) {
+                   wireSegs.pop_back();
+                   wireSegs.push_back( CSCWireSegment(thisKeyWG, thisNLayer, wirePattern) );
+
+                   }
+
+      delete wirePattern;
       }
 
-  // fake wire segment cleaning
+
+//  WriteTH2F(wHitsPerChamber);
+//  std::cout << "nWireSegments: " << wireSegs.size() << std::endl;
+/*
   for (auto it = wireSegs.begin(); it != wireSegs.end(); it++) {
-      auto it2 = std::next(it,1); 
 
-      if (it2 == wireSegs.end() || (it2->keyWG() - it->keyWG() > 1) ) continue;
-      if (it2->nLayersWithHits() < it->nLayersWithHits() ) {
-         wireSegs.erase(it2); 
+      std::cout << "keyWG: " << it->keyWG() << ", nLayer: " << it->nLayersWithHits() << std::endl;
 
-         } else { 
-                wireSegs.erase(it);
-                }
+      }
+  std::cout << std::endl;
+*/
+
+/* wire segment done */
+
+/* start strip segment */
+
+  std::list<CSCStripSegment> stripSegs;
+
+  for (int i = 0; i < nStrips*2; i++) {
+      for (int j = 0; j < 9; j++) {// scan patterns sequentially, according to ranks
+          int nhalfStrips = nHalfStrips[j]; 
+          int thisKeyHalfStrip = i+1;
+          int thisRank = patternRanks[j];
+          double s_cols_scan[nhalfStrips] = {}; 
+          for (int k = 0; k < nhalfStrips; k++) s_cols_scan[k] = s_cols[j][k] + thisKeyHalfStrip -1;
+
+          TH2F* stripPattern = new TH2F("stripPattern","",nStrips*2,0,nStrips*2-1,6,0,6);
+          stripPattern->FillN(nhalfStrips,s_cols_scan,s_rows[j],s_data[j]); 
+          stripPattern->Multiply(sHitsPerChamber); // scan is done here
+
+          TH1D* hitsLayer = stripPattern->ProjectionY();
+          hitsLayer->Divide(hitsLayer); 
+          int thisNLayer = hitsLayer->Integral(); // find layers with s hits
+
+          if (thisNLayer <= 3) { delete stripPattern; continue; } // 3 is hardcode
+          if (int(stripSegs.size()) == 0) {
+             stripSegs.push_back( CSCStripSegment(thisKeyHalfStrip,thisNLayer,thisRank,stripPattern) );
+             delete stripPattern; continue;
+
+             }
+
+          CSCStripSegment lastSeg = stripSegs.back();
+          int lastKeyHalfStrip = lastSeg.keyHalfStrip();
+          int lastNLayer = lastSeg.nLayersWithHits();
+          int lastRank = lastSeg.patternRank();
+
+          if (thisKeyHalfStrip - lastKeyHalfStrip > 2) 
+             stripSegs.push_back( CSCStripSegment(thisKeyHalfStrip,thisNLayer,thisRank,stripPattern) );
+
+          else if (thisNLayer > lastNLayer) {
+                  stripSegs.pop_back();
+                  stripSegs.push_back( CSCStripSegment(thisKeyHalfStrip,thisNLayer,thisRank,stripPattern) );    
+
+                  }
+          
+          else if ((thisNLayer == lastNLayer) && (thisRank < lastRank) ) {
+                  stripSegs.pop_back();
+                  stripSegs.push_back( CSCStripSegment(thisKeyHalfStrip,thisNLayer,thisRank,stripPattern) );
+
+                  }
+
+          delete stripPattern;
+          }
       }
 
-  std::cout << "nWireSegments: " << wireSegs.size() << ", keyWG: " << wireSegs.begin()->keyWG() << std::endl;
+/*
+  WriteTH2F(sHitsPerChamber);
+  std::cout << "nStripSegments: " << stripSegs.size() << std::endl;
+  for (auto it = stripSegs.begin(); it != stripSegs.end(); it++) {
+
+      std::cout << "keyHalfStrip: " << it->keyHalfStrip() << ", nLayer: " << it->nLayersWithHits() << ", rank: " << it->patternRank() << std::endl;
+
+      }
+  std::cout << std::endl;
+*/
+  std::cout << theChamber->id() << std::endl;
+
+  std::cout << theChamber->id() <<  ", nWireSegments: " << wireSegs.size() << 
+                                    ", nStripSegments: " << stripSegs.size() << 
+                                    ", nSegments: " << wireSegs.size() * stripSegs.size() << std::endl;
+/* strip segment done */
+
  
   std::vector<CSCSegment> segments;
   return segments;
@@ -136,7 +222,6 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
 
 
 void CSCSegAlgoUF::WriteTH2F(TH2F* hist) {
-
      for (int i = 1; i < hist->GetNbinsY()+1; i++) {
          for (int j = 1; j < hist->GetNbinsX()+1; j++) {
 
@@ -146,24 +231,23 @@ void CSCSegAlgoUF::WriteTH2F(TH2F* hist) {
              }
          std::cout << std::endl;
          }
-     std::cout << std::endl;
+
+//     std::cout << std::endl;
 
 }
 
 
 void CSCSegAlgoUF::FillWireMatrix(TH2F* whitsMatrix, ChamberWireHitContainer whits) {
-
      std::vector<double> rows_v; std::vector<double> cols_v; std::vector<double> data_v;
      for (unsigned int i = 0; i < whits.size(); i++) {
          const CSCWireHit* whit = whits[i];
          int wLayer = whit->cscDetId().layer();
-
          for (unsigned int j = 0; j < whit->wgroups().size(); j++) {
              int wg = (whit->wgroups())[j]; cols_v.push_back(wg-1);
              int wgTimeBinOn = (whit->timeBinsOn())[j]; data_v.push_back(wgTimeBinOn);
              rows_v.push_back(wLayer-1);
          }
-     } 
+     }
      double* rows_a = &rows_v[0]; double* cols_a = &cols_v[0]; double* data_a = &data_v[0];
      whitsMatrix->FillN(int(rows_v.size()), cols_a, rows_a, data_a);     
 }
@@ -176,15 +260,26 @@ void CSCSegAlgoUF::FillStripMatrix(TH2F* shitsMatrix, ChamberStripHitContainer s
      for (unsigned int i = 0; i < shits.size(); i++) {
          const CSCStripHit* shit = shits[i];
          int sLayer = shit->cscDetId().layer();
+         //std::cout << "shit->strips.size(): "  << shit->strips().size() << ", shit->s_adc().size(): " << shit->s_adc().size() << std::endl;
+         // strip hits contain either 1 or 3 strips: see makeCluster method from RecoLocalMuon/CSCRecHitD/src/CSCHitFromStripOnly.cc
 
-//         std::cout << "shit->strips.size(): "  << shit->strips().size() << ", shit->s_adc().size(): " << shit->s_adc().size() << std::endl;
-         for (unsigned int j = 0; j < shit->strips().size(); j++) {
-             int sp = (shit->strips())[j]; cols_v.push_back(sp-1);
-             double spADC = (shit->s_adc())[j]; data_v.push_back(spADC);
-//             std::cout << "adc: " << spADC << ", acdRaw: " << (shit->s_adcRaw())[j] << std::endl;
-             rows_v.push_back(sLayer-1);
+         if (int(shit->strips().size()) == 1) {
 
-         }
+            int sp = (shit->strips())[0];
+            cols_v.push_back(2*sp-2); cols_v.push_back(2*sp-1);
+            rows_v.push_back(sLayer-1); rows_v.push_back(sLayer-1);
+            data_v.push_back(1); data_v.push_back(1);
+
+            }
+
+         if (int(shit->strips().size()) == 3) {
+
+            int sp = (shit->strips())[1];            
+            double leftC = (shit->s_adc())[0]; double rightC = (shit->s_adc())[2];
+            rows_v.push_back(sLayer-1); data_v.push_back(1);
+            leftC >= rightC ? cols_v.push_back(2*sp-2) : cols_v.push_back(2*sp-1);
+
+            }
      }
      double* rows_a = &rows_v[0]; double* cols_a = &cols_v[0]; double* data_a = &data_v[0];
      shitsMatrix->FillN(int(rows_v.size()), cols_a, rows_a, data_a);
