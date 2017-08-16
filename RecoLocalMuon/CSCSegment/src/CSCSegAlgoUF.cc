@@ -94,7 +94,7 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
   double w_rows[14] = {0,0,0,1,1,2,3,3,4,4,4,5,5,5}; 
   double w_cols[14] = {-2,-1,0,-1,0,0,0,1,0,1,2,0,1,2};
   double w_data[14] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1}; // this is scan pattern
- 
+
   for (int i = 0; i < nWireGroups; i++) {
       double w_cols_scan[14] = {}; 
       int thisKeyWG = nWireGroups-i;
@@ -102,7 +102,7 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
       for (int j = 0; j < 14; j++) w_cols_scan[j] = w_cols[j] + thisKeyWG - 1; // scan from wide end of chamber
 
       TH2F* wirePattern = new TH2F("wirePattern","",nWireGroups,0,nWireGroups-1,6,0,6);
-      wirePattern->Reset();
+//      wirePattern->Reset();
       wirePattern->FillN(14,w_cols_scan,w_rows,w_data);
       wirePattern->Multiply(wHitsPerChamber); // scan is done here
   
@@ -132,7 +132,6 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
 
       delete wirePattern;
       }
-
 
 //  WriteTH2F(wHitsPerChamber);
 //  std::cout << "nWireSegments: " << wireSegs.size() << std::endl;
@@ -198,6 +197,8 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
           }
       }
 
+
+
 /*
   WriteTH2F(sHitsPerChamber);
   std::cout << "nStripSegments: " << stripSegs.size() << std::endl;
@@ -207,12 +208,19 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
 
       }
   std::cout << std::endl;
-*/
-  std::cout << theChamber->id() << std::endl;
 
+  std::cout << theChamber->id() << std::endl;
   std::cout << theChamber->id() <<  ", nWireSegments: " << wireSegs.size() << 
                                     ", nStripSegments: " << stripSegs.size() << 
                                     ", nSegments: " << wireSegs.size() * stripSegs.size() << std::endl;
+
+*/
+
+if (int(wireSegs.size()) == 0) {std::cout << "no wire seg" << std::endl; WriteTH2F(wHitsPerChamber);}
+if (int(stripSegs.size()) == 0) {std::cout << "no strip seg" << std::endl; WriteTH2F(sHitsPerChamber);}
+
+//test
+
 /* strip segment done */
 
  
