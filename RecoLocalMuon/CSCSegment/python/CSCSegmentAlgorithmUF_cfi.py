@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# parameters for CSC rechit building
+from RecoLocalMuon.CSCRecHitD.cscRecHitD_cff import *
+
 RU_ME1A = cms.PSet(
     doCollisions = cms.bool(True),
     chi2Norm_2D_ = cms.double(35),
@@ -105,6 +108,28 @@ cms.PSet(
         RU_MEX2
     )),
     parameters_per_chamber_type = cms.vint32(1, 2, 3, 4, 5, 
-        6, 5, 6, 5, 6)
+        6, 5, 6, 5, 6),
+
+    #    Calibration info:
+    CSCUseCalibrations = cms.bool(True),
+
+    #  To be set once wire digis have proper timing info:
+    CSCstripWireDeltaTime = cms.int32(8),
+
+    # Do we use the chip and chamber and L1A phase corrections when filling the recHit time?
+    #
+    CSCUseTimingCorrections = cms.bool(True),
+
+    # Do we correct the energy deposited for gas gains?
+    CSCUseGasGainCorrections = cms.bool(True),
+
+    CSCStripxtalksOffset = cms.double(0.03),
+
+    #    How to find SCA peak time?
+    #                              
+    UseAverageTime = cms.bool(False),
+    UseParabolaFit = cms.bool(False),
+    UseFivePoleFit = cms.bool(True),
+
 )
 

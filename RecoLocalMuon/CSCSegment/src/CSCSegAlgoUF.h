@@ -21,9 +21,13 @@
  */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
+//#include "RecoLocalMuon/CSCRecHitD/src/CSCMake2DRecHit.h"
+#include "CSCMake2DRecHit.h"
+
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/CSCRecHit/interface/CSCWireHit.h>
 #include <DataFormats/CSCRecHit/interface/CSCStripHit.h>
+
 #include "CSCSegFit.h"
 #include "CSCWireSegment.h"
 #include "CSCStripSegment.h"
@@ -38,6 +42,7 @@
 //#include "TMatrixDSparse.h"
 
 class CSCSegFit;
+class CSCMake2DRecHit;
 
 class CSCSegAlgoUF : public CSCSegmentAlgorithm {
 
@@ -73,7 +78,7 @@ public:
     /// Constructor
     explicit CSCSegAlgoUF(const edm::ParameterSet& ps);
     /// Destructor
-    virtual ~CSCSegAlgoUF() {};
+    /*virtual*/ ~CSCSegAlgoUF();// {};
 
     /**
      * Build track segments in this chamber (this is where the actual
@@ -98,6 +103,8 @@ public:
     std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits, 
                                                             const ChamberWireHitContainer& wirehits,
                                                             const ChamberStripHitContainer& striphits); 
+
+    CSCMake2DRecHit*       make2DHits_;
 
 private:
 

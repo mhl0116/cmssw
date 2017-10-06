@@ -18,6 +18,8 @@
 #include <iostream>
 #include <string>
 //#include "TMatrixDSparse.h"
+//#include "RecoLocalMuon/CSCRecHitD/src/CSCMake2DRecHit.h"
+
 
 CSCSegAlgoUF::CSCSegAlgoUF(const edm::ParameterSet& ps)
   : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoUF"), sfit_(nullptr) {
@@ -31,7 +33,7 @@ CSCSegAlgoUF::CSCSegAlgoUF(const edm::ParameterSet& ps)
   chi2Max = ps.getParameter<double>("chi2Max");
   wideSeg = ps.getParameter<double>("wideSeg");
   minLayersApart = ps.getParameter<int>("minLayersApart");
- 
+
   LogDebug("CSC") << myName << " has algorithm cuts set to: \n"
 		  << "--------------------------------------------------------------------\n"
 		  << "dRMax = " << dRMax << '\n'
@@ -52,6 +54,15 @@ CSCSegAlgoUF::CSCSegAlgoUF(const edm::ParameterSet& ps)
     chi2_str_ = 100;
     chi2Max = 2*chi2Max;
   }
+
+  make2DHits_ = new CSCMake2DRecHit( ps );
+
+}
+
+
+CSCSegAlgoUF::~CSCSegAlgoUF() {
+  delete make2DHits_;
+
 }
 
 std::vector<CSCSegment> CSCSegAlgoUF::run(const CSCChamber* aChamber, const ChamberHitContainer& rechits,
@@ -244,15 +255,22 @@ if (int(wireSegs.size()) == 1) {
 
 /* strip segment done */
 
+
   std::vector<ChamberWireHitContainer> wHitsFromWSegs = GetWireHitFromWireSeg(wireSegs, wirehits);
   std::vector<ChamberStripHitContainer> sHitsFromSSegs = GetStripHitFromStripSeg(stripSegs, striphits);
-
+/*
   std::cout << "NO. wire seg: "  << wHitsFromWSegs.size() << std::endl;
   for (int i = 0; i < int(wHitsFromWSegs.size()); i++) std::cout << int(wHitsFromWSegs[i].size()) << " wHits from " << i+1 << " th wSeg" << std::endl;
   std::cout << std::endl;
   std::cout << "NO. strip seg: "  << sHitsFromSSegs.size() << std::endl;
   for (int i = 0; i < int(sHitsFromSSegs.size()); i++) std::cout << int(sHitsFromSSegs[i].size()) << " sHits from " << i+1 << " th sSeg" << std::endl;
- 
+*/
+
+// change output of  GetWireHitFromWireSeg into vector of fix-sized vector; which is 6-dim, corresponding layer 1 to 6
+// empty means no RH
+//       CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(sDetId, layer, w_hit, s_hit);
+
+
   std::vector<CSCSegment> segments;
   return segments;
 }
