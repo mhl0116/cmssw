@@ -43,6 +43,18 @@ double s_rows_9[nHalfStrip_9] = {0,0,0,1,1,2,3,3,3,4,4,4,5,5,5};
 double s_cols_9[nHalfStrip_9] = {-5,-4,-3,-2,-1,0,0,1,2,2,3,4,3,4,5};
 double s_data_9[nHalfStrip_9] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
+// above are from NIMA_592(2008)26
+
+const int nHalfStrip_10 = 18;
+double s_rows_10[nHalfStrip_10] = {0,0,0,0,1,1,1,2,3,3,3,4,4,4,5,5,5,5};
+double s_cols_10[nHalfStrip_10] = {-6,-5,-4,-3,-3,-2,-1,0,1,2,3,4,5,6,6,7,8,9};
+double s_data_10[nHalfStrip_10] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+
+const int nHalfStrip_11 = 18;
+double s_rows_11[nHalfStrip_11] = {0,0,0,0,1,1,1,2,3,3,3,4,4,4,5,5,5,5};
+double s_cols_11[nHalfStrip_11] = {3,4,5,6,1,2,3,0,-3,-2,-1,-6,-5,-4,-9,-8,-7,-6};
+double s_data_11[nHalfStrip_11] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+
 int nHalfStrips[9] = {12,14,14,13,13,15,15,15,15};
 int patternRanks[9] = {1,2,2,3,3,4,4,5,5};
 double* s_rows[9] = {s_rows_1, s_rows_2, s_rows_3, s_rows_4, s_rows_5, s_rows_6, s_rows_7, s_rows_8, s_rows_9};

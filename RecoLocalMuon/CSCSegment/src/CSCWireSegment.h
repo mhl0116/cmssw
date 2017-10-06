@@ -13,6 +13,7 @@ public:
 
   int keyWG() const { return theKeyWG; }
   int nLayersWithHits() const { return nlayersWithHits; }
+  std::pair<int,double>* wireHits() {return wHits;}
 
   ~CSCWireSegment();
 
@@ -20,6 +21,7 @@ private:
 
   int theKeyWG;
   int nlayersWithHits;
+  std::pair<int,double> wHits[6] ;
 //  TH2F* wirePattern;
 
 };

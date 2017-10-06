@@ -541,11 +541,12 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
 
 
     // Fill the data members 
-    // OLD: save all 4 time bins for each strip, why ? and it is not used elsewhere
-    // std::copy( w.begin(), w.end(), std::back_inserter(strips_adc));
-    // std::copy( wRaw.begin(), wRaw.end(), std::back_inserter(strips_adcRaw));
-    strips_adc.push_back(w[0]+w[1]+w[2]);
-    strips_adcRaw.push_back(wRaw[0]+wRaw[1]+wRaw[2]);
+    // hualin: save all 4 time bins for each strip, why ? and it is not used elsewhere?
+    // hualin: NO, it is used in CSCXonStrip_MatchGatti.cc
+    std::copy( w.begin(), w.end(), std::back_inserter(strips_adc));
+    std::copy( wRaw.begin(), wRaw.end(), std::back_inserter(strips_adcRaw));
+    //strips_adc.push_back(w[0]+w[1]+w[2]);
+    //strips_adcRaw.push_back(wRaw[0]+wRaw[1]+wRaw[2]);
 
     if ( data[i].strip() < 1 ){
       LogTrace("CSCRecHit") << "[CSCHitFromStripOnly::findHitOnStripPosition] problem in indexing of strip, strip= " 
