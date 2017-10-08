@@ -275,21 +275,23 @@ if (int(wireSegs.size()) == 1) {
 
   std::vector<CSCSegment> segments;
 
-  for (int i = 0; i < int(wireSegs); i++) {
-      for (int j = 0; j < int(stripSegs); j++) {
 
-          wireSeg = wireSegs[i]; stripSeg = stripSegs[j];
-          ChamberWireHitContainer* wHitsFromWSeg = GetWireHitFromWireSeg(wireSeg, wirehits);
-          ChamberStripHitContainer* sHitsFromSSeg = GetStripHitFromStripSeg(stripSeg, striphits);
+  for (auto wIt = wireSegs.begin(); wIt != wireSegs.end(); wIt++) {
+      for (auto sIt = stripSegs.begin(); sIt != stripSegs.end(); sIt++) {
+
+          CSCWireSegment wireSeg = *wIt;
+          CSCStripSegment stripSeg = *sIt;
+          int wHitsFromWSeg[6] = {}; GetWireHitFromWireSeg(wireSeg, wirehits, wHitsFromWSeg);
+          int sHitsFromSSeg[6] = {}; GetStripHitFromStripSeg(stripSeg, striphits, sHitsFromSSeg);
  
           ChamberHitContainer csc2DRecHits;
           for (int k = 0; k < 6; k++) {
-              if (wHitsFromWSeg[k] == NULL || sHitsFromSSeg[k] == NULL) continue;
-              CSCWireHit* cscwirehit = wHitsFromWSeg[k]; 
-              CSCStripHit* cscstriphit = sHitsFromSSeg[k];
+              if (wHitsFromWSeg[k] == -1 || sHitsFromSSeg[k] == -1) continue;
+              const CSCWireHit* cscwirehit = wirehits[wHitsFromWSeg[k]]; 
+              const CSCStripHit* cscstriphit = striphits[sHitsFromSSeg[k]];
 
-              CSCRecHit2D rechit = make2DHits->hitFromStripAndWire(CSCChamber->id(), CSCChamber->layer(k+1), *cscwirehit, *cscstriphit );
-              ChamberHitContainer.push_back(*rechit);
+              CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(theChamber->id(), theChamber->layer(k+1), *cscwirehit, *cscstriphit );
+              csc2DRecHits.push_back(&rechit);
 // try compile and figure out pointer and reference issue
               }
 
@@ -368,11 +370,10 @@ void CSCSegAlgoUF::FillStripMatrix(TH2F* shitsMatrix, ChamberStripHitContainer s
 }
 
 
-CSCSegAlgoUF::ChamberWireHitContainer* CSCSegAlgoUF::GetWireHitFromWireSeg(CSCWireSegment wireSeg, ChamberWireHitContainer whits) {
-  ChamberWireHitContainer* container[6] = {};
+void CSCSegAlgoUF::GetWireHitFromWireSeg(CSCWireSegment wireSeg, ChamberWireHitContainer whits, int* wireHitIndex) {
 
   for (int i = 0; i < 6; i++) { // loop over 6 layers
-      double wHitPos = wireSeg[i];
+      double wHitPos = (wireSeg.wireHits())[i];
       int wHitIndex = -999;
       double wPosDiff = 113; //112 is max one can get
 
@@ -390,32 +391,30 @@ CSCSegAlgoUF::ChamberWireHitContainer* CSCSegAlgoUF::GetWireHitFromWireSeg(CSCWi
           }
 
       if (wPosDiff < 113 && wHitPos >= 1) {
-         container[i] = whits[wHitIndex];
+         wireHitIndex[i] = wHitIndex;
 
          } else {
-                container[i] = NULL;
+                wireHitIndex[i] = -1;
                 }
 
       }
 
-  return container;
 }
 
 
-CSCSegAlgoUF::ChamberStripHitContainer* CSCSegAlgoUF::GetStripHitFromStripSeg(CSCStripSegment stripSegs, ChamberStripHitContainer shits) {
-  ChamberStripHitContainer* container[6] = {};
+void CSCSegAlgoUF::GetStripHitFromStripSeg(CSCStripSegment stripSeg, ChamberStripHitContainer shits, int* stripHitIndex) {
 
   for (int i = 0; i < 6; i++) {
-      double sHitPos = ceil(stripSegHits[i].second/2); // convert comparator number to strip number
+      double sHitPos = ceil((stripSeg.stripHits())[i]/2); // convert comparator number to strip number
       int sHitIndex = -999;
       double sPosDiff = 81;
 
       for (int j = 0; j < int(shits.size()); j++) {
           const CSCStripHit* tmpHit = shits[j];
-          int sHitLayer2 = tmpHit->cscDetId().layer();
+          int sHitLayer = tmpHit->cscDetId().layer();
           double sHitPos2 = tmpHit->sHitPos();
 
-          if (sHitLayer != sHitLayer2) continue;
+          if ((i+1) != sHitLayer) continue;
           if (abs(sHitPos-sHitPos2) < sPosDiff) {
              sPosDiff = abs(sHitPos-sHitPos2);
              sHitIndex = j;
@@ -424,15 +423,14 @@ CSCSegAlgoUF::ChamberStripHitContainer* CSCSegAlgoUF::GetStripHitFromStripSeg(CS
           }
 
       if (sPosDiff < 81 && sHitPos >= 1) { 
-         container[i] = shits[sHitIndex];
+         stripHitIndex[i] = sHitIndex;
 
          } else {
-                container[i] = NULL;
+                stripHitIndex[i] = -1;
                 }
 
       }
 
-  return container;
 }
 
 
