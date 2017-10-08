@@ -16,7 +16,7 @@ CSCStripSegment::CSCStripSegment(int halfStrip,
    for (int i = 0; i < 6; i++) {
 
        sHitHists[i] = stripSegHist->ProjectionX("layer"+TString(i+1),i+1,i+1);
-       sHits[i] = std::make_pair(i+1, sHitHists[i]->GetMean()+0.5 );
+       sHits[i] = sHitHists[i]->GetMean()+0.5;
 
    }
 

@@ -256,8 +256,6 @@ if (int(wireSegs.size()) == 1) {
 /* strip segment done */
 
 
-  std::vector<ChamberWireHitContainer> wHitsFromWSegs = GetWireHitFromWireSeg(wireSegs, wirehits);
-  std::vector<ChamberStripHitContainer> sHitsFromSSegs = GetStripHitFromStripSeg(stripSegs, striphits);
 /*
   std::cout << "NO. wire seg: "  << wHitsFromWSegs.size() << std::endl;
   for (int i = 0; i < int(wHitsFromWSegs.size()); i++) std::cout << int(wHitsFromWSegs[i].size()) << " wHits from " << i+1 << " th wSeg" << std::endl;
@@ -266,12 +264,39 @@ if (int(wireSegs.size()) == 1) {
   for (int i = 0; i < int(sHitsFromSSegs.size()); i++) std::cout << int(sHitsFromSSegs[i].size()) << " sHits from " << i+1 << " th sSeg" << std::endl;
 */
 
-// change output of  GetWireHitFromWireSeg into vector of fix-sized vector; which is 6-dim, corresponding layer 1 to 6
-// empty means no RH
+/// change output of  GetWireHitFromWireSeg into vector of fix-sized vector; which is 6-dim, corresponding layer 1 to 6
+/// empty means no RH
 //       CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(sDetId, layer, w_hit, s_hit);
 
+// or one can loop over wireSeg and stripSeg here
+// for each pairing make two 6-dim array
+// then call hitFromStripAndWire here
+// for each pairing, make a proto-Seg here, and call CSCSegmentFit, make a real Segment
 
   std::vector<CSCSegment> segments;
+
+  for (int i = 0; i < int(wireSegs); i++) {
+      for (int j = 0; j < int(stripSegs); j++) {
+
+          wireSeg = wireSegs[i]; stripSeg = stripSegs[j];
+          ChamberWireHitContainer* wHitsFromWSeg = GetWireHitFromWireSeg(wireSeg, wirehits);
+          ChamberStripHitContainer* sHitsFromSSeg = GetStripHitFromStripSeg(stripSeg, striphits);
+ 
+          ChamberHitContainer csc2DRecHits;
+          for (int k = 0; k < 6; k++) {
+              if (wHitsFromWSeg[k] == NULL || sHitsFromSSeg[k] == NULL) continue;
+              CSCWireHit* cscwirehit = wHitsFromWSeg[k]; 
+              CSCStripHit* cscstriphit = sHitsFromSSeg[k];
+
+              CSCRecHit2D rechit = make2DHits->hitFromStripAndWire(CSCChamber->id(), CSCChamber->layer(k+1), *cscwirehit, *cscstriphit );
+              ChamberHitContainer.push_back(*rechit);
+// try compile and figure out pointer and reference issue
+              }
+
+//          segments.push_back();   
+          }
+      }
+
   return segments;
 }
 
@@ -343,75 +368,71 @@ void CSCSegAlgoUF::FillStripMatrix(TH2F* shitsMatrix, ChamberStripHitContainer s
 }
 
 
-std::vector<CSCSegAlgoUF::ChamberWireHitContainer> CSCSegAlgoUF::GetWireHitFromWireSeg(std::list<CSCWireSegment> wireSegs, ChamberWireHitContainer whits) {
-  std::vector<ChamberWireHitContainer> containers;
+CSCSegAlgoUF::ChamberWireHitContainer* CSCSegAlgoUF::GetWireHitFromWireSeg(CSCWireSegment wireSeg, ChamberWireHitContainer whits) {
+  ChamberWireHitContainer* container[6] = {};
 
-  for (auto it = wireSegs.begin(); it != wireSegs.end(); it++) {
-      ChamberWireHitContainer tmpContainer;
-      std::pair<int,double>* wireSegHits = it->wireHits();
+  for (int i = 0; i < 6; i++) { // loop over 6 layers
+      double wHitPos = wireSeg[i];
+      int wHitIndex = -999;
+      double wPosDiff = 113; //112 is max one can get
 
-      for (int i = 0; i < 6; i++) {
-          int wHitLayer = wireSegHits[i].first;
-          double wHitPos = wireSegHits[i].second;
+      for (int j = 0; j < int(whits.size()); j++) {
+          const CSCWireHit* tmpHit = whits[j];
+          int wHitLayer = tmpHit->cscDetId().layer();
+          double wHitPos2 = tmpHit->wHitPos();
 
-          int wHitIndex = -999;
-          double wPosDiff = 113; //112 is max one can get
-          for (int j = 0; j < int(whits.size()); j++) {
-              const CSCWireHit* tmpHit = whits[j];
-              int wHitLayer2 = tmpHit->cscDetId().layer();
-              double wHitPos2 = tmpHit->wHitPos();
+          if (wHitLayer != (i+1) ) continue;
+          if (abs(wHitPos-wHitPos2) < wPosDiff) {
+             wPosDiff = abs(wHitPos-wHitPos2);
+             wHitIndex = j;
 
-              if (wHitLayer != wHitLayer2) continue; 
-              if (abs(wHitPos-wHitPos2) < wPosDiff) {
-                 wPosDiff = abs(wHitPos-wHitPos2);
-                 wHitIndex = j;
-
-                 }
-              }
-          if (wPosDiff < 113 && wHitPos >= 1) tmpContainer.push_back(whits[wHitIndex]);
-
+             }
           }
-      
-      containers.push_back(tmpContainer);
+
+      if (wPosDiff < 113 && wHitPos >= 1) {
+         container[i] = whits[wHitIndex];
+
+         } else {
+                container[i] = NULL;
+                }
+
       }
 
-  return containers;
+  return container;
 }
 
 
-std::vector<CSCSegAlgoUF::ChamberStripHitContainer> CSCSegAlgoUF::GetStripHitFromStripSeg(std::list<CSCStripSegment> stripSegs, ChamberStripHitContainer shits) {
-  std::vector<ChamberStripHitContainer> containers;
+CSCSegAlgoUF::ChamberStripHitContainer* CSCSegAlgoUF::GetStripHitFromStripSeg(CSCStripSegment stripSegs, ChamberStripHitContainer shits) {
+  ChamberStripHitContainer* container[6] = {};
 
-  for (auto it = stripSegs.begin(); it != stripSegs.end(); it++) {
-      ChamberStripHitContainer tmpContainer;
-      std::pair<int,double>* stripSegHits = it->stripHits();
+  for (int i = 0; i < 6; i++) {
+      double sHitPos = ceil(stripSegHits[i].second/2); // convert comparator number to strip number
+      int sHitIndex = -999;
+      double sPosDiff = 81;
 
-      for (int i = 0; i < 6; i++) {
-          int sHitLayer = stripSegHits[i].first;
-          double sHitPos = ceil(stripSegHits[i].second/2); // convert comparator number to strip number
+      for (int j = 0; j < int(shits.size()); j++) {
+          const CSCStripHit* tmpHit = shits[j];
+          int sHitLayer2 = tmpHit->cscDetId().layer();
+          double sHitPos2 = tmpHit->sHitPos();
 
-          int sHitIndex = -999;
-          double sPosDiff = 81;
-          for (int j = 0; j < int(shits.size()); j++) {
-              const CSCStripHit* tmpHit = shits[j];
-              int sHitLayer2 = tmpHit->cscDetId().layer();
-              double sHitPos2 = tmpHit->sHitPos();
+          if (sHitLayer != sHitLayer2) continue;
+          if (abs(sHitPos-sHitPos2) < sPosDiff) {
+             sPosDiff = abs(sHitPos-sHitPos2);
+             sHitIndex = j;
 
-              if (sHitLayer != sHitLayer2) continue;
-              if (abs(sHitPos-sHitPos2) < sPosDiff) {
-                 sPosDiff = abs(sHitPos-sHitPos2);
-                 sHitIndex = j;
-
-                 }
-              }
-          if (sPosDiff < 81 && sHitPos >= 1) tmpContainer.push_back(shits[sHitIndex]);
-
+             }
           }
 
-      containers.push_back(tmpContainer);
+      if (sPosDiff < 81 && sHitPos >= 1) { 
+         container[i] = shits[sHitIndex];
+
+         } else {
+                container[i] = NULL;
+                }
+
       }
 
-  return containers;
+  return container;
 }
 
 

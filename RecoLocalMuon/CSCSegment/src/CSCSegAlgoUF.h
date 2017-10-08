@@ -91,8 +91,8 @@ public:
     void FillWireMatrix(TH2F* whitsMatrix, ChamberWireHitContainer whits);
     void FillStripMatrix(TH2F* shitsMatrix, ChamberStripHitContainer shits);
 
-    std::vector<ChamberWireHitContainer> GetWireHitFromWireSeg(std::list<CSCWireSegment> wireSegs, ChamberWireHitContainer whits);
-    std::vector<ChamberStripHitContainer> GetStripHitFromStripSeg(std::list<CSCStripSegment> stripSegs, ChamberStripHitContainer shits);
+    ChamberWireHitContainer* GetWireHitFromWireSeg(CSCWireSegment wireSeg, ChamberWireHitContainer whits);
+    ChamberStripHitContainer* GetStripHitFromStripSeg(CSCStripSegment stripSeg, ChamberStripHitContainer shits);
 
     void WriteTH2F(TH2F* hist);
     //    std::vector<CSCSegment> assambleRechitsInSegments(const ChamberHitContainer& rechits, int iadd, BoolContainer& used, BoolContainer& used3p, int *recHits_per_layer, const LayerIndex& layerIndex, std::vector<CSCSegment> segments);
