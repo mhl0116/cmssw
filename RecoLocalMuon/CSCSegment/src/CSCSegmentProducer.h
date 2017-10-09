@@ -27,6 +27,7 @@ public:
     /// Produce the CSCSegment collection
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
+
 private:
     int iev; // events through
     CSCSegmentBuilder* segmentBuilder_;

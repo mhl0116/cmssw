@@ -8,9 +8,9 @@
 CSCFindPeakTime::CSCFindPeakTime( const edm::ParameterSet& ps ): 
   useAverageTime(false), useParabolaFit(false), useFivePoleFit(false) {
 
-  useAverageTime = ps.getParameter<bool>("UseAverageTime");
-  useParabolaFit = ps.getParameter<bool>("UseParabolaFit");
-  useFivePoleFit = ps.getParameter<bool>("UseFivePoleFit");
+  useAverageTime = false; //ps.getParameter<bool>("UseAverageTime");
+  useParabolaFit = false; //ps.getParameter<bool>("UseParabolaFit");
+  useFivePoleFit = true; //ps.getParameter<bool>("UseFivePoleFit");
   LogTrace("CSCRecHit") << "[CSCFindPeakTime] useAverageTime=" << useAverageTime <<
     ", useParabolaFit=" << useParabolaFit << ", useFivePoleFit=" << useFivePoleFit;
 }

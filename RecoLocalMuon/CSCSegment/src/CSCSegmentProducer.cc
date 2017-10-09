@@ -62,3 +62,4 @@ void CSCSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
     // put collection in event
     ev.put(std::move(oc));
 }
+

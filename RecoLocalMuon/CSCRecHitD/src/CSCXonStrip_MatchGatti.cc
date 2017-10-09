@@ -38,8 +38,8 @@
 CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps) :
   recoConditions_( 0 )  {
 
-  useCalib                   = ps.getParameter<bool>("CSCUseCalibrations");
-  xtalksOffset               = ps.getParameter<double>("CSCStripxtalksOffset");
+  useCalib                   = true;//ps.getParameter<bool>("CSCUseCalibrations");
+  xtalksOffset               = 0.03;//ps.getParameter<double>("CSCStripxtalksOffset");
   noise_level_ME1a                 = ps.getParameter<double>("NoiseLevel_ME1a");
   xt_asymmetry_ME1a                = ps.getParameter<double>("XTasymmetry_ME1a");
   const_syst_ME1a                   = ps.getParameter<double>("ConstSyst_ME1a");

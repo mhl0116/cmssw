@@ -18,8 +18,11 @@
 #include <iostream>
 #include <string>
 //#include "TMatrixDSparse.h"
-//#include "RecoLocalMuon/CSCRecHitD/src/CSCMake2DRecHit.h"
-
+#include "RecoLocalMuon/CSCRecHitD/src/CSCMake2DRecHit.cc"
+#include "RecoLocalMuon/CSCRecHitD/src/CSCXonStrip_MatchGatti.cc"
+#include "RecoLocalMuon/CSCRecHitD/src/CSCFindPeakTime.cc"
+#include "RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.cc"
+#include "RecoLocalMuon/CSCRecHitD/src/HardCodedCorrectionInitialization.cc"
 
 CSCSegAlgoUF::CSCSegAlgoUF(const edm::ParameterSet& ps)
   : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoUF"), sfit_(nullptr) {
@@ -275,7 +278,6 @@ if (int(wireSegs.size()) == 1) {
 
   std::vector<CSCSegment> segments;
 
-
   for (auto wIt = wireSegs.begin(); wIt != wireSegs.end(); wIt++) {
       for (auto sIt = stripSegs.begin(); sIt != stripSegs.end(); sIt++) {
 
@@ -292,13 +294,11 @@ if (int(wireSegs.size()) == 1) {
 
               CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(theChamber->id(), theChamber->layer(k+1), *cscwirehit, *cscstriphit );
               csc2DRecHits.push_back(&rechit);
-// try compile and figure out pointer and reference issue
               }
 
 //          segments.push_back();   
           }
       }
-
   return segments;
 }
 

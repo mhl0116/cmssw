@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# parameters for CSC rechit building
-from RecoLocalMuon.CSCRecHitD.cscRecHitD_cff import *
-
 RU_ME1A = cms.PSet(
     doCollisions = cms.bool(True),
     chi2Norm_2D_ = cms.double(35),
@@ -13,7 +10,40 @@ RU_ME1A = cms.PSet(
     wideSeg = cms.double(3.0),
     minLayersApart = cms.int32(1),
     dRIntMax = cms.double(2.0),
-    dRMax = cms.double(1.5)
+    dRMax = cms.double(1.5),
+    #    a XT asymmetry model parameter
+    XTasymmetry_ME1a = cms.double(0.023),
+    XTasymmetry_ME1b = cms.double(0.01),
+    XTasymmetry_ME12 = cms.double(0.015),
+    XTasymmetry_ME13 = cms.double(0.02),
+    XTasymmetry_ME21 = cms.double(0.023),
+    XTasymmetry_ME22 = cms.double(0.023),
+    XTasymmetry_ME31 = cms.double(0.023),
+    XTasymmetry_ME32 = cms.double(0.023),
+    XTasymmetry_ME41 = cms.double(0.023),
+    #
+    #    constant systematics (in cm)
+    ConstSyst_ME1a = cms.double(0.01),
+    ConstSyst_ME1b = cms.double(0.02),
+    ConstSyst_ME12 = cms.double(0.02),
+    ConstSyst_ME13 = cms.double(0.03),
+    ConstSyst_ME21 = cms.double(0.03),
+    ConstSyst_ME22 = cms.double(0.03),
+    ConstSyst_ME31 = cms.double(0.03),
+    ConstSyst_ME32 = cms.double(0.03),
+    ConstSyst_ME41 = cms.double(0.03),
+    #
+    #    3 time bins noise (in ADC counts)
+    NoiseLevel_ME1a = cms.double(9.0),
+    NoiseLevel_ME1b = cms.double(6.0),
+    NoiseLevel_ME12 = cms.double(7.0),
+    NoiseLevel_ME13 = cms.double(4.0),
+    NoiseLevel_ME21 = cms.double(5.0),
+    NoiseLevel_ME22 = cms.double(7.0),
+    NoiseLevel_ME31 = cms.double(5.0),
+    NoiseLevel_ME32 = cms.double(7.0),
+    NoiseLevel_ME41 = cms.double(5.0)
+
 )
 RU_ME1B = cms.PSet(
     doCollisions = cms.bool(True),
@@ -25,7 +55,40 @@ RU_ME1B = cms.PSet(
     wideSeg = cms.double(3.0),
     minLayersApart = cms.int32(1),
     dRIntMax = cms.double(2.0),
-    dRMax = cms.double(1.5)
+    dRMax = cms.double(1.5),
+    #    a XT asymmetry model parameter
+    XTasymmetry_ME1a = cms.double(0.023),
+    XTasymmetry_ME1b = cms.double(0.01),
+    XTasymmetry_ME12 = cms.double(0.015),
+    XTasymmetry_ME13 = cms.double(0.02),
+    XTasymmetry_ME21 = cms.double(0.023),
+    XTasymmetry_ME22 = cms.double(0.023),
+    XTasymmetry_ME31 = cms.double(0.023),
+    XTasymmetry_ME32 = cms.double(0.023),
+    XTasymmetry_ME41 = cms.double(0.023),
+    #
+    #    constant systematics (in cm)
+    ConstSyst_ME1a = cms.double(0.01),
+    ConstSyst_ME1b = cms.double(0.02),
+    ConstSyst_ME12 = cms.double(0.02),
+    ConstSyst_ME13 = cms.double(0.03),
+    ConstSyst_ME21 = cms.double(0.03),
+    ConstSyst_ME22 = cms.double(0.03),
+    ConstSyst_ME31 = cms.double(0.03),
+    ConstSyst_ME32 = cms.double(0.03),
+    ConstSyst_ME41 = cms.double(0.03),
+    #
+    #    3 time bins noise (in ADC counts)
+    NoiseLevel_ME1a = cms.double(9.0),
+    NoiseLevel_ME1b = cms.double(6.0),
+    NoiseLevel_ME12 = cms.double(7.0),
+    NoiseLevel_ME13 = cms.double(4.0),
+    NoiseLevel_ME21 = cms.double(5.0),
+    NoiseLevel_ME22 = cms.double(7.0),
+    NoiseLevel_ME31 = cms.double(5.0),
+    NoiseLevel_ME32 = cms.double(7.0),
+    NoiseLevel_ME41 = cms.double(5.0)
+
 )
 RU_ME12 = cms.PSet(
     doCollisions = cms.bool(True),
@@ -37,7 +100,40 @@ RU_ME12 = cms.PSet(
     wideSeg = cms.double(3.0),
     minLayersApart = cms.int32(1),
     dRIntMax = cms.double(2.0),
-    dRMax = cms.double(1.5)
+    dRMax = cms.double(1.5),
+    #    a XT asymmetry model parameter
+    XTasymmetry_ME1a = cms.double(0.023),
+    XTasymmetry_ME1b = cms.double(0.01),
+    XTasymmetry_ME12 = cms.double(0.015),
+    XTasymmetry_ME13 = cms.double(0.02),
+    XTasymmetry_ME21 = cms.double(0.023),
+    XTasymmetry_ME22 = cms.double(0.023),
+    XTasymmetry_ME31 = cms.double(0.023),
+    XTasymmetry_ME32 = cms.double(0.023),
+    XTasymmetry_ME41 = cms.double(0.023),
+    #
+    #    constant systematics (in cm)
+    ConstSyst_ME1a = cms.double(0.01),
+    ConstSyst_ME1b = cms.double(0.02),
+    ConstSyst_ME12 = cms.double(0.02),
+    ConstSyst_ME13 = cms.double(0.03),
+    ConstSyst_ME21 = cms.double(0.03),
+    ConstSyst_ME22 = cms.double(0.03),
+    ConstSyst_ME31 = cms.double(0.03),
+    ConstSyst_ME32 = cms.double(0.03),
+    ConstSyst_ME41 = cms.double(0.03),
+    #
+    #    3 time bins noise (in ADC counts)
+    NoiseLevel_ME1a = cms.double(9.0),
+    NoiseLevel_ME1b = cms.double(6.0),
+    NoiseLevel_ME12 = cms.double(7.0),
+    NoiseLevel_ME13 = cms.double(4.0),
+    NoiseLevel_ME21 = cms.double(5.0),
+    NoiseLevel_ME22 = cms.double(7.0),
+    NoiseLevel_ME31 = cms.double(5.0),
+    NoiseLevel_ME32 = cms.double(7.0),
+    NoiseLevel_ME41 = cms.double(5.0)
+
 )
 RU_ME13 = cms.PSet(
     doCollisions = cms.bool(True),
@@ -49,7 +145,40 @@ RU_ME13 = cms.PSet(
     wideSeg = cms.double(3.0),
     minLayersApart = cms.int32(1),
     dRIntMax = cms.double(2.0),
-    dRMax = cms.double(1.5)
+    dRMax = cms.double(1.5),
+    #    a XT asymmetry model parameter
+    XTasymmetry_ME1a = cms.double(0.023),
+    XTasymmetry_ME1b = cms.double(0.01),
+    XTasymmetry_ME12 = cms.double(0.015),
+    XTasymmetry_ME13 = cms.double(0.02),
+    XTasymmetry_ME21 = cms.double(0.023),
+    XTasymmetry_ME22 = cms.double(0.023),
+    XTasymmetry_ME31 = cms.double(0.023),
+    XTasymmetry_ME32 = cms.double(0.023),
+    XTasymmetry_ME41 = cms.double(0.023),
+    #
+    #    constant systematics (in cm)
+    ConstSyst_ME1a = cms.double(0.01),
+    ConstSyst_ME1b = cms.double(0.02),
+    ConstSyst_ME12 = cms.double(0.02),
+    ConstSyst_ME13 = cms.double(0.03),
+    ConstSyst_ME21 = cms.double(0.03),
+    ConstSyst_ME22 = cms.double(0.03),
+    ConstSyst_ME31 = cms.double(0.03),
+    ConstSyst_ME32 = cms.double(0.03),
+    ConstSyst_ME41 = cms.double(0.03),
+    #
+    #    3 time bins noise (in ADC counts)
+    NoiseLevel_ME1a = cms.double(9.0),
+    NoiseLevel_ME1b = cms.double(6.0),
+    NoiseLevel_ME12 = cms.double(7.0),
+    NoiseLevel_ME13 = cms.double(4.0),
+    NoiseLevel_ME21 = cms.double(5.0),
+    NoiseLevel_ME22 = cms.double(7.0),
+    NoiseLevel_ME31 = cms.double(5.0),
+    NoiseLevel_ME32 = cms.double(7.0),
+    NoiseLevel_ME41 = cms.double(5.0)
+
 )
 RU_MEX1 = cms.PSet(
     doCollisions = cms.bool(True),
@@ -61,7 +190,40 @@ RU_MEX1 = cms.PSet(
     wideSeg = cms.double(3.0),
     minLayersApart = cms.int32(1),
     dRIntMax = cms.double(2.0),
-    dRMax = cms.double(1.5)
+    dRMax = cms.double(1.5),
+    #    a XT asymmetry model parameter
+    XTasymmetry_ME1a = cms.double(0.023),
+    XTasymmetry_ME1b = cms.double(0.01),
+    XTasymmetry_ME12 = cms.double(0.015),
+    XTasymmetry_ME13 = cms.double(0.02),
+    XTasymmetry_ME21 = cms.double(0.023),
+    XTasymmetry_ME22 = cms.double(0.023),
+    XTasymmetry_ME31 = cms.double(0.023),
+    XTasymmetry_ME32 = cms.double(0.023),
+    XTasymmetry_ME41 = cms.double(0.023),
+    #
+    #    constant systematics (in cm)
+    ConstSyst_ME1a = cms.double(0.01),
+    ConstSyst_ME1b = cms.double(0.02),
+    ConstSyst_ME12 = cms.double(0.02),
+    ConstSyst_ME13 = cms.double(0.03),
+    ConstSyst_ME21 = cms.double(0.03),
+    ConstSyst_ME22 = cms.double(0.03),
+    ConstSyst_ME31 = cms.double(0.03),
+    ConstSyst_ME32 = cms.double(0.03),
+    ConstSyst_ME41 = cms.double(0.03),
+    #
+    #    3 time bins noise (in ADC counts)
+    NoiseLevel_ME1a = cms.double(9.0),
+    NoiseLevel_ME1b = cms.double(6.0),
+    NoiseLevel_ME12 = cms.double(7.0),
+    NoiseLevel_ME13 = cms.double(4.0),
+    NoiseLevel_ME21 = cms.double(5.0),
+    NoiseLevel_ME22 = cms.double(7.0),
+    NoiseLevel_ME31 = cms.double(5.0),
+    NoiseLevel_ME32 = cms.double(7.0),
+    NoiseLevel_ME41 = cms.double(5.0)
+
 )
 RU_MEX2 = cms.PSet(
     doCollisions = cms.bool(True),
@@ -73,8 +235,42 @@ RU_MEX2 = cms.PSet(
     wideSeg = cms.double(3.0),
     minLayersApart = cms.int32(1),
     dRIntMax = cms.double(2.0),
-    dRMax = cms.double(1.5)
+    dRMax = cms.double(1.5),
+    #    a XT asymmetry model parameter
+    XTasymmetry_ME1a = cms.double(0.023),
+    XTasymmetry_ME1b = cms.double(0.01),
+    XTasymmetry_ME12 = cms.double(0.015),
+    XTasymmetry_ME13 = cms.double(0.02),
+    XTasymmetry_ME21 = cms.double(0.023),
+    XTasymmetry_ME22 = cms.double(0.023),
+    XTasymmetry_ME31 = cms.double(0.023),
+    XTasymmetry_ME32 = cms.double(0.023),
+    XTasymmetry_ME41 = cms.double(0.023),
+    #
+    #    constant systematics (in cm)
+    ConstSyst_ME1a = cms.double(0.01),
+    ConstSyst_ME1b = cms.double(0.02),
+    ConstSyst_ME12 = cms.double(0.02),
+    ConstSyst_ME13 = cms.double(0.03),
+    ConstSyst_ME21 = cms.double(0.03),
+    ConstSyst_ME22 = cms.double(0.03),
+    ConstSyst_ME31 = cms.double(0.03),
+    ConstSyst_ME32 = cms.double(0.03),
+    ConstSyst_ME41 = cms.double(0.03),
+    #
+    #    3 time bins noise (in ADC counts)
+    NoiseLevel_ME1a = cms.double(9.0),
+    NoiseLevel_ME1b = cms.double(6.0),
+    NoiseLevel_ME12 = cms.double(7.0),
+    NoiseLevel_ME13 = cms.double(4.0),
+    NoiseLevel_ME21 = cms.double(5.0),
+    NoiseLevel_ME22 = cms.double(7.0),
+    NoiseLevel_ME31 = cms.double(5.0),
+    NoiseLevel_ME32 = cms.double(7.0),
+    NoiseLevel_ME41 = cms.double(5.0)
+
 )
+
 
 CSCSegAlgoUF = cms.PSet(
     chamber_types = cms.vstring('ME1/a', 
@@ -107,29 +303,11 @@ cms.PSet(
 cms.PSet(
         RU_MEX2
     )),
+#cms.PSet(
+#        cscRecHitDParameters)
+#    ),
     parameters_per_chamber_type = cms.vint32(1, 2, 3, 4, 5, 
-        6, 5, 6, 5, 6),
-
-    #    Calibration info:
-    CSCUseCalibrations = cms.bool(True),
-
-    #  To be set once wire digis have proper timing info:
-    CSCstripWireDeltaTime = cms.int32(8),
-
-    # Do we use the chip and chamber and L1A phase corrections when filling the recHit time?
-    #
-    CSCUseTimingCorrections = cms.bool(True),
-
-    # Do we correct the energy deposited for gas gains?
-    CSCUseGasGainCorrections = cms.bool(True),
-
-    CSCStripxtalksOffset = cms.double(0.03),
-
-    #    How to find SCA peak time?
-    #                              
-    UseAverageTime = cms.bool(False),
-    UseParabolaFit = cms.bool(False),
-    UseFivePoleFit = cms.bool(True),
+        6, 5, 6, 5, 6)
 
 )
 

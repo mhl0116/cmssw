@@ -27,10 +27,10 @@
 CSCMake2DRecHit::CSCMake2DRecHit(const edm::ParameterSet& ps):
   peakTimeFinder_( new CSCFindPeakTime( ps ) ){
     
-  useCalib            = ps.getParameter<bool>("CSCUseCalibrations");
-  stripWireDeltaTime  = ps.getParameter<int>("CSCstripWireDeltaTime"); //@@ Non-standard  CSC*s*trip...
-  useTimingCorrections= ps.getParameter<bool>("CSCUseTimingCorrections");
-  useGasGainCorrections = ps.getParameter<bool>("CSCUseGasGainCorrections");
+  useCalib            = true; //ps.getParameter<bool>("CSCUseCalibrations");
+  stripWireDeltaTime  = 8;//ps.getParameter<int>("CSCstripWireDeltaTime"); //@@ Non-standard  CSC*s*trip...
+  useTimingCorrections= true;//ps.getParameter<bool>("CSCUseTimingCorrections");
+  useGasGainCorrections = true;//ps.getParameter<bool>("CSCUseGasGainCorrections");
 
   xMatchGatti_        = new CSCXonStrip_MatchGatti( ps );
 

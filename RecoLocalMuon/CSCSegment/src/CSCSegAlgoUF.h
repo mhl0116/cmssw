@@ -21,8 +21,6 @@
  */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
-//#include "RecoLocalMuon/CSCRecHitD/src/CSCMake2DRecHit.h"
-#include "CSCMake2DRecHit.h"
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/CSCRecHit/interface/CSCWireHit.h>
@@ -39,7 +37,6 @@
 #include <vector>
 
 #include "TH2F.h"
-//#include "TMatrixDSparse.h"
 
 class CSCSegFit;
 class CSCMake2DRecHit;
