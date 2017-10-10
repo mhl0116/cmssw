@@ -42,7 +42,9 @@ RU_ME1A = cms.PSet(
     NoiseLevel_ME22 = cms.double(7.0),
     NoiseLevel_ME31 = cms.double(5.0),
     NoiseLevel_ME32 = cms.double(7.0),
-    NoiseLevel_ME41 = cms.double(5.0)
+    NoiseLevel_ME41 = cms.double(5.0),
+    readBadChannels = cms.bool(True)
+
 
 )
 RU_ME1B = cms.PSet(
@@ -87,7 +89,9 @@ RU_ME1B = cms.PSet(
     NoiseLevel_ME22 = cms.double(7.0),
     NoiseLevel_ME31 = cms.double(5.0),
     NoiseLevel_ME32 = cms.double(7.0),
-    NoiseLevel_ME41 = cms.double(5.0)
+    NoiseLevel_ME41 = cms.double(5.0),
+    readBadChannels = cms.bool(True)
+
 
 )
 RU_ME12 = cms.PSet(
@@ -132,7 +136,9 @@ RU_ME12 = cms.PSet(
     NoiseLevel_ME22 = cms.double(7.0),
     NoiseLevel_ME31 = cms.double(5.0),
     NoiseLevel_ME32 = cms.double(7.0),
-    NoiseLevel_ME41 = cms.double(5.0)
+    NoiseLevel_ME41 = cms.double(5.0),
+    readBadChannels = cms.bool(True)
+
 
 )
 RU_ME13 = cms.PSet(
@@ -177,7 +183,9 @@ RU_ME13 = cms.PSet(
     NoiseLevel_ME22 = cms.double(7.0),
     NoiseLevel_ME31 = cms.double(5.0),
     NoiseLevel_ME32 = cms.double(7.0),
-    NoiseLevel_ME41 = cms.double(5.0)
+    NoiseLevel_ME41 = cms.double(5.0),
+    readBadChannels = cms.bool(True)
+
 
 )
 RU_MEX1 = cms.PSet(
@@ -222,7 +230,9 @@ RU_MEX1 = cms.PSet(
     NoiseLevel_ME22 = cms.double(7.0),
     NoiseLevel_ME31 = cms.double(5.0),
     NoiseLevel_ME32 = cms.double(7.0),
-    NoiseLevel_ME41 = cms.double(5.0)
+    NoiseLevel_ME41 = cms.double(5.0),
+    readBadChannels = cms.bool(True)
+
 
 )
 RU_MEX2 = cms.PSet(
@@ -267,7 +277,9 @@ RU_MEX2 = cms.PSet(
     NoiseLevel_ME22 = cms.double(7.0),
     NoiseLevel_ME31 = cms.double(5.0),
     NoiseLevel_ME32 = cms.double(7.0),
-    NoiseLevel_ME41 = cms.double(5.0)
+    NoiseLevel_ME41 = cms.double(5.0),
+    readBadChannels = cms.bool(True)
+
 
 )
 

@@ -39,6 +39,7 @@
 #include "TH2F.h"
 
 class CSCSegFit;
+class CSCRecoConditions;
 class CSCMake2DRecHit;
 
 class CSCSegAlgoUF : public CSCSegmentAlgorithm {
@@ -99,9 +100,12 @@ public:
      */
     std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits, 
                                                             const ChamberWireHitContainer& wirehits,
-                                                            const ChamberStripHitContainer& striphits); 
+                                                            const ChamberStripHitContainer& striphits,
+                                                            CSCRecoConditions* reco); 
 
     CSCMake2DRecHit*       make2DHits_;
+
+    void setConditions ( CSCRecoConditions* reco );
 
 private:
 
@@ -178,6 +182,8 @@ private:
 
         std::unique_ptr<CSCSegFit> sfit_;
 	//CSCSegFit* sfit_;
+
+  CSCRecoConditions* recoConditions_;
 
 };
 

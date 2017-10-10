@@ -4,11 +4,11 @@
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentProducer.h>
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentBuilderPluginFactory.h>
 
-#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoSK.h>
-#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoTC.h>
-#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoDF.h>
-#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoST.h>
-#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoRU.h>
+//#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoSK.h>
+//#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoTC.h>
+//#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoDF.h>
+//#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoST.h>
+//#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoRU.h>
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoUF.h>
 
 

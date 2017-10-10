@@ -18,6 +18,7 @@
 #include <DataFormats/CSCRecHit/interface/CSCStripHitCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegment.h>
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
+#include "RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h"
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <vector>
@@ -33,7 +34,11 @@ public:
     */
 //    virtual std::vector<CSCSegment> run(const CSCChamber* chamber, const std::vector<const CSCRecHit2D*>& rechits) = 0;  
     virtual std::vector<CSCSegment> run(const CSCChamber* chamber, const std::vector<const CSCRecHit2D*>& rechits,
-                                        const std::vector<const CSCWireHit*>& wirehits, const std::vector<const CSCStripHit*>& striphits) = 0;
+                                        const std::vector<const CSCWireHit*>& wirehits, const std::vector<const CSCStripHit*>& striphits,
+                                        CSCRecoConditions* reco) = 0;
+
+//    virtual void setConditions( CSCRecoConditions* reco ) = 0;
+
 
     private:
 };

@@ -17,6 +17,7 @@
 #include "DataFormats/CSCRecHit/interface/CSCStripHitCollection.h"
 
 class CSCSegmentBuilder; 
+class CSCRecoConditions;
 
 class CSCSegmentProducer : public edm::stream::EDProducer<> {
 public:
@@ -31,6 +32,7 @@ public:
 private:
     int iev; // events through
     CSCSegmentBuilder* segmentBuilder_;
+    CSCRecoConditions* recoConditions_;
     edm::EDGetTokenT<CSCRecHit2DCollection> m_token;
     edm::EDGetTokenT<CSCWireHitCollection> m_token_wire;
     edm::EDGetTokenT<CSCStripHitCollection> m_token_strip;

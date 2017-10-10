@@ -23,6 +23,7 @@
 
 class CSCGeometry;
 class CSCSegmentAlgorithm;
+class CSCRecoConditions;
 
 class CSCSegmentBuilder {
 public:
@@ -46,10 +47,16 @@ public:
      */
     void setGeometry(const CSCGeometry* geom);
 
+    void setConditions ( CSCRecoConditions* reco );
+
 private:
 
     const CSCGeometry* geom_;
+
     std::map<std::string, CSCSegmentAlgorithm*> algoMap;
+
+    CSCRecoConditions* recoConditions_;
+
 };
 
 #endif
