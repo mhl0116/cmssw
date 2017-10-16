@@ -167,7 +167,6 @@ void CSCSegFit::fitlsq(void) {
     double u = lp.x();
     double v = lp.y();
     double z = lp.z();
-    
     // Covariance matrix of local errors 
     SMatrixSym2 IC; // 2x2, init to 0
     

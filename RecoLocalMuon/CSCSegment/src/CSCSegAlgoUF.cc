@@ -71,10 +71,7 @@ CSCSegAlgoUF::~CSCSegAlgoUF() {
 
 void CSCSegAlgoUF::setConditions( CSCRecoConditions* reco ) {
   recoConditions_ = reco;
-  std::cout << "here1: " << make2DHits_ << std::endl;
-  std::cout << "here2: " << reco << std::endl;
   make2DHits_->setConditions( reco );
-  std::cout << "here" << std::endl;
 }
 
 
@@ -298,16 +295,12 @@ if (int(wireSegs.size()) == 1) {
           CSCStripSegment stripSeg = *sIt;
           int wHitsFromWSeg[6] = {}; GetWireHitFromWireSeg(wireSeg, wirehits, wHitsFromWSeg);
           int sHitsFromSSeg[6] = {}; GetStripHitFromStripSeg(stripSeg, striphits, sHitsFromSSeg);
-
-          if (theChamber->id().station() == 1) continue;
- 
-          ChamberHitContainer csc2DRecHits;
+          std::vector<CSCRecHit2D> csc2DRecHits;
+//          ChamberHitContainer csc2DRecHits;
           for (int k = 0; k < 6; k++) {
               if (wHitsFromWSeg[k] == -1 || sHitsFromSSeg[k] == -1) continue;
               const CSCWireHit* cscwirehit = wirehits[wHitsFromWSeg[k]]; 
               const CSCStripHit* cscstriphit = striphits[sHitsFromSSeg[k]];
-
-              std::cout << cscstriphit->sHitPos() << std::endl;
 
               const CSCWireHit& wirehit = *cscwirehit;
               const CSCStripHit& striphit = *cscstriphit;
@@ -315,36 +308,44 @@ if (int(wireSegs.size()) == 1) {
                                                theChamber->id().station(),
                                                theChamber->id().ring(),
                                                theChamber->id().chamber(), k+1);
-              const CSCLayer* cscLayer = theChamber->layer(k+1);
 
-              std::cout << detId << std::endl;
+              const CSCLayer* cscLayer = theChamber->layer(k+1);
+//std::cout << "wire pos: " << cscwirehit->wHitPos() << ", strip pos: " << cscstriphit->sHitPos() << std::endl;
+//              std::cout << detId << std::endl;
 //              std::cout << theChamber->layer(k+1) << std::endl;
 
               CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(detId, cscLayer, wirehit, striphit );
-              csc2DRecHits.push_back(&rechit);
+//              const CSCRecHit2D* rechit_p = &rechit;
+//std::cout << rechit << std::endl;
+              csc2DRecHits.push_back(rechit);
               }
-std::cout << "h1" << std::endl;
+
+ChamberHitContainer csc2DRecHits_p;
+for (std::vector<CSCRecHit2D>::const_iterator it = csc2DRecHits.begin(); it != csc2DRecHits.end(); it++)
+    csc2DRecHits_p.push_back(&(*it));    
+
           std::unique_ptr<CSCSegFit> oldfit;
-          oldfit.reset(new CSCSegFit( theChamber, csc2DRecHits ));
-std::cout << "h2" << std::endl;
+//std::cout << csc2DRecHits.size() << std::endl;
+          oldfit.reset(new CSCSegFit( theChamber, csc2DRecHits_p ));
           oldfit->fit();
-std::cout << "h3" << std::endl;
 
           sfit_ = std::move(oldfit);
           if (int(sfit_->hits().size())==0) continue; // why number of hits is 0 ???
-std::cout << sfit_->hits().size() << std::endl;
           CSCSegment temp(sfit_->hits(), sfit_->intercept(),
                           sfit_->localdir(), sfit_->covarianceMatrix(), sfit_->chi2());
-std::cout << "h4" << std::endl;
 
           sfit_ = 0;
           segments.push_back(temp);
+std::cout << temp << std::endl;
 
           }
       }
 
   std::cout << "return " << segments.size() << " 2D segments" << std::endl;
+  std::cout << std::endl;
+
   return segments;
+
 }
 
 
