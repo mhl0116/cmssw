@@ -14,6 +14,9 @@ public:
   int keyWG() const { return theKeyWG; }
   int nLayersWithHits() const { return nlayersWithHits; }
   double* wireHits() {return wHits;}
+  int* nLayerHits() {return nHits;}
+
+  void updateWHits(double* wHits2, int* nHits2);
 
   ~CSCWireSegment();
 
@@ -21,7 +24,8 @@ private:
 
   int theKeyWG;
   int nlayersWithHits;
-  double wHits[6] ;
+  double wHits[6] ; // whits position in each layer
+  int nHits[6]; // number of whits in each layer
 //  TH2F* wirePattern;
 
 };

@@ -137,10 +137,10 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits,
         if (cscWireHits.size() == 0) continue;
         
         LogDebug("CSCSegment|CSC") << "found " << cscRecHits.size() << " rechits in chamber " << *chIt;
-        std::cout << std::endl;
-        std::cout << "found " << cscRecHits.size() << " rechits in chamber " << *chIt << std::endl;
-        std::cout << "found " << cscWireHits.size() << " wirehits in chamber " << *chIt << std::endl;
-        std::cout << "found " << cscStripHits.size() << " striphits in chamber " << *chIt << std::endl;
+//        std::cout << std::endl;
+//        std::cout << "found " << cscRecHits.size() << " rechits in chamber " << *chIt << std::endl;
+//        std::cout << "found " << cscWireHits.size() << " wirehits in chamber " << *chIt << std::endl;
+//        std::cout << "found " << cscStripHits.size() << " striphits in chamber " << *chIt << std::endl;
         // given the chamber select the appropriate algo... and run it
 //        if (chamber->specs()->chamberTypeName() == "CSCSegAlgoUF")
 //           algoMap[chamber->specs()->chamberTypeName()]->setConditions(recoConditions_);
