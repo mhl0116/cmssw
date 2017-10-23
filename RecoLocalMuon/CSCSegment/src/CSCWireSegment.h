@@ -26,6 +26,8 @@ private:
   int nlayersWithHits;
   double wHits[6] ; // whits position in each layer
   int nHits[6]; // number of whits in each layer
+
+  double GetMean(TH1D* h1);
 //  TH2F* wirePattern;
 
 };

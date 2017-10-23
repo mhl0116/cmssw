@@ -1,3 +1,4 @@
+#include <iostream>
 #include "RecoLocalMuon/CSCSegment/src/CSCWireSegment.h"
 
 CSCWireSegment::CSCWireSegment() {}
@@ -16,6 +17,7 @@ CSCWireSegment::CSCWireSegment(int wg,
 
        wHitHists[i] = wireSegHist->ProjectionX("layer"+TString(i+1),i+1,i+1);
        wHits[i] = wHitHists[i]->GetMean()+0.5; 
+//       wHits[i] = GetMean(wHitHists[i]);
        // first number is layer, second number is wPos in unit of wire group
        // +0.5 is because of ROOT histogram property, GetMean() returns 4.5 for example if fill only one entry at 4 
        nHits[i] = nHitHists->GetBinContent(i+1);
@@ -37,4 +39,27 @@ void CSCWireSegment::updateWHits(double* wHits2, int* nHits2)
 
        }
 
+}
+
+
+
+double CSCWireSegment::GetMean(TH1D* h1)
+{
+
+  double mean = 0;
+  double count = 0;
+  double sum = 0;
+
+//std::cout << h1->GetNbinsX() << std::endl;
+  for (int i = 0; i < h1->GetNbinsX(); i++) {
+
+      if (h1->GetBinContent(i+1) > 0) {
+         count += 1; sum += (h1->GetBinLowEdge(i+1) + 1);
+//std::cout << "count: " << count << ", sum: " << sum << std::endl;
+         }
+      }
+
+  if (count > 0) mean = sum/count;
+//std::cout << mean << std::endl;
+  return mean;
 }

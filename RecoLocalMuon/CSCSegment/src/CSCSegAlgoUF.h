@@ -161,6 +161,7 @@ private:
     // ================
 
     const CSCChamber* theChamber;
+    bool isME11;
     ChamberHitContainer proto_segment;
     const std::string myName; 
 		
