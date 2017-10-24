@@ -1,4 +1,5 @@
 #include "RecoLocalMuon/CSCSegment/src/CSCStripSegment.h"
+#include <iostream>
 
 CSCStripSegment::CSCStripSegment() {}
 
@@ -21,7 +22,7 @@ CSCStripSegment::CSCStripSegment(int halfStrip,
 //       sHits[i] = GetMean(sHitHists[i]);
 if (sHitHists[i]->GetMean() == 0) sHits[i] = 0;
        nHits[i] = nHitHists->GetBinContent(i+1);
-
+//std::cout << "sHitHists[i]->GetMean(): " << sHitHists[i]->GetMean() << std::endl;
    }
 
 }
@@ -35,7 +36,8 @@ void CSCStripSegment::updateSHits(double* sHits2, int* nHits2)
 
    for (int i = 0; i < 6; i++) {
 
-       sHits[i] = (sHits[i]*nHits[i] + sHits2[i]*nHits2[i] )/(nHits[i]+nHits2[i]);
+       if (nHits[i]+nHits2[i] > 0) 
+          {sHits[i] = (sHits[i]*nHits[i] + sHits2[i]*nHits2[i] )/(nHits[i]+nHits2[i]);}
        nHits[i] = nHits[i]+nHits2[i];
 
        }

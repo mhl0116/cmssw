@@ -17,6 +17,8 @@ public:
   int* nLayerHits() {return nHits;}
 
   void updateWHits(double* wHits2, int* nHits2);
+  double comHitLow();
+  double comHitHigh();
 
   ~CSCWireSegment();
 

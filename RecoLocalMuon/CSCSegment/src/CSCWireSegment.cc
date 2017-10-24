@@ -17,6 +17,7 @@ CSCWireSegment::CSCWireSegment(int wg,
 
        wHitHists[i] = wireSegHist->ProjectionX("layer"+TString(i+1),i+1,i+1);
        wHits[i] = wHitHists[i]->GetMean()+0.5; 
+       if (wHitHists[i]->GetMean() == 0) wHits[i] = 0;
 //       wHits[i] = GetMean(wHitHists[i]);
        // first number is layer, second number is wPos in unit of wire group
        // +0.5 is because of ROOT histogram property, GetMean() returns 4.5 for example if fill only one entry at 4 
@@ -34,13 +35,48 @@ void CSCWireSegment::updateWHits(double* wHits2, int* nHits2)
 
    for (int i = 0; i < 6; i++) {
 
-       wHits[i] = (wHits[i]*nHits[i] + wHits2[i]*nHits2[i] )/(nHits[i]+nHits2[i]);
+       if (nHits[i]+nHits2[i])
+          {wHits[i] = (wHits[i]*nHits[i] + wHits2[i]*nHits2[i] )/(nHits[i]+nHits2[i]);}
        nHits[i] = nHits[i]+nHits2[i];
 
        }
 
 }
 
+
+
+double CSCWireSegment::comHitLow()
+{
+
+  double low = 120;
+
+  for (int i = 0; i < 6; i++) {
+
+      double tmpHit = wHits[i];
+      if (tmpHit < low && wHits[i] > 0) low = tmpHit;
+
+      }
+
+  return low;
+
+}
+
+
+double CSCWireSegment::comHitHigh()
+{
+
+  double high = -1;
+
+  for (int i = 0; i < 6; i++) {
+
+      double tmpHit = wHits[i];
+      if (tmpHit > high && wHits[i] > 0) high = tmpHit;
+
+      }
+
+  return high;
+
+}
 
 
 double CSCWireSegment::GetMean(TH1D* h1)

@@ -103,13 +103,13 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
                                                     const ChamberStripHitContainer& ustriphits) {
 
   std::vector<CSCSegment> segments;
-/*
+
   int e = theChamber->id().endcap();
   int s = theChamber->id().station();
   int r = theChamber->id().ring();
   int c = theChamber->id().chamber();
-  if (!(e == 1 && s == 3 && r == 1 && c == 14)) return segments;
-*/
+  if (!(e == 1 && s == 1 && r == 4 && c == 17)) return segments;
+
   ChamberWireHitContainer wirehits = uwirehits;
   ChamberStripHitContainer striphits = ustriphits;
 
@@ -340,7 +340,7 @@ void CSCSegAlgoUF::ScanForWireSeg(TH2F* wHitsPerChamber, std::list<CSCWireSegmen
              int station = theChamber->id().station();
              if (station == 1 || station == 2 ) wirePattern->FillN(14,w_cols_scan,w_rows_1,w_data);
              if (station == 3 || station == 4) wirePattern->FillN(14,w_cols_scan,w_rows_2,w_data);
-//if (debug && i == 0) WriteTH2F(wirePattern);
+//if (i == 10) {std::cout << "wPattern: " << std::endl;WriteTH2F(wirePattern);std::cout << std::endl;}
              wirePattern->Multiply(wHitsPerChamber); // scan is done here
              TH1D* hitsLayer = wirePattern->ProjectionY();
              hitsLayer->Divide(hitsLayer);
@@ -350,6 +350,7 @@ void CSCSegAlgoUF::ScanForWireSeg(TH2F* wHitsPerChamber, std::list<CSCWireSegmen
 
              if (int(wireSegs.size()) == 0 ) {
 //std::cout << "wPattern: " << std::endl; WriteTH2F(wirePattern);
+//std::cout << std::endl;
                 wireSegs.push_back( CSCWireSegment(thisKeyWG, thisNLayer, wirePattern) );
                 wHitsPerChamber->Add(wirePattern,-1); 
                 delete wirePattern; continue;
@@ -358,7 +359,7 @@ void CSCSegAlgoUF::ScanForWireSeg(TH2F* wHitsPerChamber, std::list<CSCWireSegmen
              CSCWireSegment lastSeg = wireSegs.back();
              int lastKeyWG =  lastSeg.keyWG();
 //std::cout << "wPattern: " << std::endl; WriteTH2F(wirePattern);
-
+//std::cout << std::endl;
              CSCWireSegment tmpWireSeg = CSCWireSegment(thisKeyWG, thisNLayer, wirePattern);
              if (abs(lastKeyWG-thisKeyWG) > 1) wireSegs.push_back(tmpWireSeg);
              if (abs(lastKeyWG-thisKeyWG) == 1) {
@@ -421,6 +422,7 @@ void CSCSegAlgoUF::ScanForStripSeg(TH2F* sHitsPerChamber, std::list<CSCStripSegm
 
              TH2F* stripPattern = new TH2F("stripPattern","",nStrips*2+1,0,nStrips*2+1,6,0,6);
              stripPattern->FillN(nhalfStrips,s_cols_scan,s_rows[j],s_data[j]); 
+//if (i == 10) {std::cout << "sPattern: " << std::endl; WriteTH2F(stripPattern);std::cout << std::endl;}
              stripPattern->Multiply(sHitsPerChamber); // scan is done here
 
              TH1D* hitsLayer = stripPattern->ProjectionY();
@@ -434,7 +436,7 @@ void CSCSegAlgoUF::ScanForStripSeg(TH2F* sHitsPerChamber, std::list<CSCStripSegm
 
              if (int(stripSegs.size()) == 0 ) {
 //std::cout << "sPattern: " << std::endl; WriteTH2F(stripPattern);
-
+//std::cout << std::endl;
                 stripSegs.push_back( CSCStripSegment(thisKeyHalfStrip,thisNLayer,thisRank,stripPattern) ); 
                 sHitsPerChamber->Add(stripPattern,-1);
                 delete stripPattern; continue;
@@ -443,6 +445,7 @@ void CSCSegAlgoUF::ScanForStripSeg(TH2F* sHitsPerChamber, std::list<CSCStripSegm
              CSCStripSegment lastSeg = stripSegs.back();
              int lastKeyHalfStrip = lastSeg.keyHalfStrip();
 //std::cout << "sPattern: " << std::endl; WriteTH2F(stripPattern);
+//std::cout << std::endl;
 
              CSCStripSegment tmpStripSeg = CSCStripSegment(thisKeyHalfStrip,thisNLayer,thisRank,stripPattern);
              if (abs(thisKeyHalfStrip - lastKeyHalfStrip) > 1) stripSegs.push_back(tmpStripSeg);
@@ -491,22 +494,29 @@ void CSCSegAlgoUF::ScanForStripSeg(TH2F* sHitsPerChamber, std::list<CSCStripSegm
 void CSCSegAlgoUF::GetWireHitFromWireSeg(CSCWireSegment wireSeg, ChamberWireHitContainer whits, int* wireHitIndex) {
 
   double keyWH = wireSeg.keyWG();
+  double wgLow = wireSeg.comHitLow();
+  double wgHigh = wireSeg.comHitHigh();
+std::cout << "keyWH: " << keyWH << std::endl;
+std::cout << "low: " << wgLow << ", high: " << wgHigh << std::endl;
 
   for (int i = 0; i < 6; i++) { // loop over 6 layers
       double wHitPos = (wireSeg.wireHits())[i];
       int wHitIndex = -999;
       double wPosDiff = 113; //112 is max one can get
-//std::cout << "wpos: " << wHitPos << std::endl;
+std::cout << "wpos: " << wHitPos << std::endl;
+      bool hitMissed = false;
       for (int j = 0; j < int(whits.size()); j++) {
           const CSCWireHit* tmpHit = whits[j];
           int wHitLayer = tmpHit->cscDetId().layer();
           double wHitPos2 = tmpHit->wHitPos();
+if (i==0) std::cout << "wHitPos2: " << wHitPos2 << std::endl;
+          if (wHitLayer != (i+1) ) continue;
 
-          if (wHitPos == 0 && abs(keyWH-wHitPos2) <= 1) {
-             wHitIndex = j; continue;
+          if (wHitPos == 0 && abs(keyWH-wHitPos2) <= 2 && (wHitPos2 >= wgLow) && (wHitPos2 <= wgHigh) ) {
+std::cout << "here: " << wHitPos2 << std::endl;
+             wHitIndex = j; hitMissed=true; break;
 
              }       
-          if (wHitLayer != (i+1) ) continue;
           if (abs(wHitPos-wHitPos2) < wPosDiff) {
              wPosDiff = abs(wHitPos-wHitPos2);
              wHitIndex = j;
@@ -514,7 +524,7 @@ void CSCSegAlgoUF::GetWireHitFromWireSeg(CSCWireSegment wireSeg, ChamberWireHitC
              }
           }
 
-      if (wPosDiff < 113 && wHitPos >= 1 ) { // if pattern doesn't cover some hit, and is close, to keyWH, include it
+      if ((wPosDiff < 113 && wHitPos >= 1) || (wHitPos==0&&hitMissed)) { // if pattern doesn't cover some hit, and is close, to keyWH, include it
          wireHitIndex[i] = wHitIndex;
 
          } else {
@@ -537,8 +547,9 @@ std::cout << "low: " << comHitLow << ", high: " << comHitHigh << std::endl;
   for (int i = 0; i < 6; i++) {
       double sHitPos_ = (stripSeg.stripHits())[i]; // comparator position in unit of half strip
       double sHitPos = -1;  // strip hit position in unit of strip
+std::cout << "sHitPos_: " << sHitPos_ << std::endl;
  
-     if (!isME11 && (i==0||i==2||i==4) ) sHitPos = ceil((sHitPos_-1)/2.0); // convert comparator number to strip number
+      if (!isME11 && (i==0||i==2||i==4) ) sHitPos = ceil((sHitPos_-1)/2.0); // convert comparator number to strip number
       if (isME11 || (!isME11 && (i==1||i==3||i==5) ) ) sHitPos = ceil(sHitPos_/2.0);
       if (sHitPos_==1 || sHitPos_==2) sHitPos = 1;
 
