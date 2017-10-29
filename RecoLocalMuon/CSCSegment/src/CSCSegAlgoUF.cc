@@ -110,7 +110,7 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
   int s = theChamber->id().station();
   int r = theChamber->id().ring();
   int c = theChamber->id().chamber();
-  if (!(e == 1 && s == 1 && r == 4 && c == 17)) return segments;
+//  if (!(e == 1 && s == 1 && r == 4 && c == 17)) return segments;
 
   ChamberWireHitContainer wirehits = uwirehits;
   ChamberStripHitContainer striphits = ustriphits;
@@ -236,10 +236,10 @@ std::cout << rechit << std::endl;
 
               // do prune
               // this function return segment , inside function decide update or not
-              if (temp.chi2() < 1e-4) {
+              if (!(ChiSquaredProbability( temp.chi2(), temp.degreesOfFreedom() ) < 1e-4 && temp.nRecHits() > 3)) {
                  segments.push_back(temp);
                  } else {
-                        tempSeg = doPrune(csc2DRecHits_p, temp);
+                        CSCSegment tempSeg = doPrune(csc2DRecHits_p, temp);
                         segments.push_back(tempSeg);
                         }
 
@@ -613,16 +613,16 @@ CSCSegment CSCSegAlgoUF::doPrune(ChamberHitContainer rechits, CSCSegment oldSeg)
   double chi2Improvement = 1;
   double oldChi2Prob = ChiSquaredProbability( oldSeg.chi2(), oldSeg.degreesOfFreedom() );
 
+std::cout << "doPrune: nRH: " << nHits << std::endl;
+
   for (int i = 0; i < nHits; i++) {
 
       ChamberHitContainer tmpRHs(nHits);
-      std::copy(rechits.begin(),rechits.end(),tmpRHs);
+      std::copy(rechits.begin(),rechits.end(),tmpRHs.begin());
       tmpRHs.erase(tmpRHs.begin()+i);
 
-      CSCSegment temp;
-
       std::unique_ptr<CSCSegFit> oldfit;
-      oldfit.reset(new CSCSegFit( theChamber, csc2DRecHits_p ));
+      oldfit.reset(new CSCSegFit( theChamber, tmpRHs ));
       oldfit->fit();
 
       CSCSegment temp(oldfit->hits(), oldfit->intercept(),
@@ -633,7 +633,7 @@ CSCSegment CSCSegAlgoUF::doPrune(ChamberHitContainer rechits, CSCSegment oldSeg)
       double newChi2Prob = ChiSquaredProbability( temp.chi2(), temp.degreesOfFreedom() );
       if (newChi2Prob < 1e-10) continue;
       if (newChi2Prob/oldChi2Prob < 1e4) continue;
-
+std::cout << oldChi2Prob << ", " << newChi2Prob << std::endl;
       if (newChi2Prob/oldChi2Prob > chi2Improvement) {
          updateSeg = true;
          segAfterPrune[i] = temp;
@@ -650,6 +650,7 @@ CSCSegment CSCSegAlgoUF::doPrune(ChamberHitContainer rechits, CSCSegment oldSeg)
 
      } else {
 
+std::cout << "nRH after: " << segAfterPrune[newSegIndex].nRecHits() << std::endl;
             return segAfterPrune[newSegIndex];
 
             }
