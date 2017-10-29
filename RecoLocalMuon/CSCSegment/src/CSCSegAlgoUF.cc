@@ -23,6 +23,8 @@
 #include "RecoLocalMuon/CSCRecHitD/src/CSCFindPeakTime.h"
 #include "RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h"
 //#include "RecoLocalMuon/CSCRecHitD/src/HardCodedCorrectionInitialization.cc"
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+
 
 CSCSegAlgoUF::CSCSegAlgoUF(const edm::ParameterSet& ps)
   : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoUF"), sfit_(nullptr) {
@@ -231,8 +233,17 @@ std::cout << rechit << std::endl;
                               sfit_->localdir(), sfit_->covarianceMatrix(), sfit_->chi2());
 
               sfit_ = 0;
-              segments.push_back(temp);
-std::cout << temp << std::endl;
+
+              // do prune
+              // this function return segment , inside function decide update or not
+              if (temp.chi2() < 1e-4) {
+                 segments.push_back(temp);
+                 } else {
+                        tempSeg = doPrune(csc2DRecHits_p, temp);
+                        segments.push_back(tempSeg);
+                        }
+
+//std::cout << temp << std::endl;
               }
             }
 
@@ -285,19 +296,20 @@ void CSCSegAlgoUF::FillStripMatrix(TH2F* shitsMatrix, ChamberStripHitContainer s
          int sLayer = shit->cscDetId().layer();
          //std::cout << "shit->strips.size(): "  << shit->strips().size() << ", shit->s_adc().size(): " << shit->s_adc().size() << std::endl;
          // strip hits contain either 1 or 3 strips: see makeCluster method from RecoLocalMuon/CSCRecHitD/src/CSCHitFromStripOnly.cc
-
+std::cout << "layer: " << sLayer << ", sHitPos:  " << shit->sHitPos() << std::endl;
+std::cout << "layer: " << sLayer << ", strip cluster size:  " << shit->strips().size() << std::endl;
          if (int(shit->strips().size()) == 1) {
 
             int sp = (shit->strips())[0];
             if (isME11 || (!isME11 && (sLayer == 2 || sLayer == 4 || sLayer == 6) ) ){
-               cols_v.push_back(2*sp-2); cols_v.push_back(2*sp-1);
+               cols_v.push_back(2*sp-2); //cols_v.push_back(2*sp-1);
                }
             if (!isME11 && (sLayer == 1 || sLayer == 3 || sLayer == 5) ) {
-               cols_v.push_back(2*sp-1); cols_v.push_back(2*sp);
+               cols_v.push_back(2*sp-1); //cols_v.push_back(2*sp);
                }
 
-            rows_v.push_back(sLayer-1); rows_v.push_back(sLayer-1);
-            data_v.push_back(1); data_v.push_back(1);
+            rows_v.push_back(sLayer-1); //rows_v.push_back(sLayer-1);
+            data_v.push_back(1); //data_v.push_back(1);
 
             }
 
@@ -586,6 +598,61 @@ std::cout << "layer:" << i+1 << ", sHitIndex: " << sHitIndex << std::endl;
                 }
 
       }
+
+}
+
+
+
+CSCSegment CSCSegAlgoUF::doPrune(ChamberHitContainer rechits, CSCSegment oldSeg)
+{
+
+  const int nHits = int(rechits.size());
+  CSCSegment segAfterPrune[nHits] = {};
+  bool updateSeg = false;
+  int newSegIndex = -1;
+  double chi2Improvement = 1;
+  double oldChi2Prob = ChiSquaredProbability( oldSeg.chi2(), oldSeg.degreesOfFreedom() );
+
+  for (int i = 0; i < nHits; i++) {
+
+      ChamberHitContainer tmpRHs(nHits);
+      std::copy(rechits.begin(),rechits.end(),tmpRHs);
+      tmpRHs.erase(tmpRHs.begin()+i);
+
+      CSCSegment temp;
+
+      std::unique_ptr<CSCSegFit> oldfit;
+      oldfit.reset(new CSCSegFit( theChamber, csc2DRecHits_p ));
+      oldfit->fit();
+
+      CSCSegment temp(oldfit->hits(), oldfit->intercept(),
+                      oldfit->localdir(), oldfit->covarianceMatrix(), oldfit->chi2());
+
+      oldfit = 0;
+
+      double newChi2Prob = ChiSquaredProbability( temp.chi2(), temp.degreesOfFreedom() );
+      if (newChi2Prob < 1e-10) continue;
+      if (newChi2Prob/oldChi2Prob < 1e4) continue;
+
+      if (newChi2Prob/oldChi2Prob > chi2Improvement) {
+         updateSeg = true;
+         segAfterPrune[i] = temp;
+         chi2Improvement = newChi2Prob/oldChi2Prob;
+         newSegIndex = i;
+
+         }
+
+      }
+
+  if (!updateSeg) {
+
+     return oldSeg;
+
+     } else {
+
+            return segAfterPrune[newSegIndex];
+
+            }
 
 }
 

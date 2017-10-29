@@ -95,6 +95,8 @@ public:
     void GetWireHitFromWireSeg(CSCWireSegment wireSeg, ChamberWireHitContainer whits, int* wireHitIndex);
     void GetStripHitFromStripSeg(CSCStripSegment stripSeg, ChamberStripHitContainer shits, int* stripHitIndex);
 
+    CSCSegment doPrune(ChamberHitContainer rechits, CSCSegment oldSeg);
+
     void WriteTH2F(TH2F* hist);
     //    std::vector<CSCSegment> assambleRechitsInSegments(const ChamberHitContainer& rechits, int iadd, BoolContainer& used, BoolContainer& used3p, int *recHits_per_layer, const LayerIndex& layerIndex, std::vector<CSCSegment> segments);
 
