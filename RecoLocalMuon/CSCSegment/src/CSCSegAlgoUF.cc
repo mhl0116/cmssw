@@ -89,8 +89,8 @@ std::vector<CSCSegment> CSCSegAlgoUF::run(const CSCChamber* aChamber, const Cham
   nWireGroups = theChamber->layer(1)->geometry()->numberOfWireGroups();
   nStrips = theChamber->layer(1)->geometry()->numberOfStrips();
   //std::cout << "This chamber has " << nWireGroups << " wire groups and " << nStrips << " strips " << std::endl;
-  int theStation = theChamber->id().station();
-  int theRing = theChamber->id().ring();
+  theStation = theChamber->id().station();
+  theRing = theChamber->id().ring();
   if (theStation==1 && (theRing == 1 || theRing==4) )
      {isME11 = true;}
   else {isME11 = false;}
@@ -193,6 +193,10 @@ if (int(wireSegs.size()) == 1) {
 
           CSCWireSegment wireSeg = *wIt;
           CSCStripSegment stripSeg = *sIt;
+
+//          if (isME11 && theRing == 4 && wireSeg.keyWG() > 20 ) continue;
+//          if (isME11 && theRing == 1 && wireSeg.keyWG() < 9 ) continue;
+
 //std::cout << "keyWG: " << wIt->keyWG() << ", nLayer: " << wIt->nLayersWithHits() << std::endl;
 //std::cout << "keyHS: " << sIt->keyHalfStrip() << ", nLayer: " << sIt->nLayersWithHits() << std::endl;
 
@@ -212,11 +216,11 @@ if (int(wireSegs.size()) == 1) {
                                                theChamber->id().chamber(), k+1);
 
               const CSCLayer* cscLayer = theChamber->layer(k+1);
-std::cout << "wire pos: " << cscwirehit->wHitPos() << ", strip pos: " << cscstriphit->sHitPos() << std::endl;
+//std::cout << "wire pos: " << cscwirehit->wHitPos() << ", strip pos: " << cscstriphit->sHitPos() << std::endl;
 
               CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(detId, cscLayer, wirehit, striphit );
-std::cout << rechit << std::endl;
-              csc2DRecHits.push_back(rechit);
+//std::cout << rechit << std::endl;
+              if (make2DHits_->isHitInFiducial( cscLayer, rechit )) csc2DRecHits.push_back(rechit);
               }
 
               ChamberHitContainer csc2DRecHits_p;
@@ -247,8 +251,8 @@ std::cout << rechit << std::endl;
               }
             }
 
-  std::cout << "return " << segments.size() << " 2D segments" << std::endl;
-  std::cout << std::endl;
+//  std::cout << "return " << segments.size() << " 2D segments" << std::endl;
+//  std::cout << std::endl;
 
   return segments;
 
@@ -296,8 +300,8 @@ void CSCSegAlgoUF::FillStripMatrix(TH2F* shitsMatrix, ChamberStripHitContainer s
          int sLayer = shit->cscDetId().layer();
          //std::cout << "shit->strips.size(): "  << shit->strips().size() << ", shit->s_adc().size(): " << shit->s_adc().size() << std::endl;
          // strip hits contain either 1 or 3 strips: see makeCluster method from RecoLocalMuon/CSCRecHitD/src/CSCHitFromStripOnly.cc
-std::cout << "layer: " << sLayer << ", sHitPos:  " << shit->sHitPos() << std::endl;
-std::cout << "layer: " << sLayer << ", strip cluster size:  " << shit->strips().size() << std::endl;
+//std::cout << "layer: " << sLayer << ", sHitPos:  " << shit->sHitPos() << std::endl;
+//std::cout << "layer: " << sLayer << ", strip cluster size:  " << shit->strips().size() << std::endl;
          if (int(shit->strips().size()) == 1) {
 
             int sp = (shit->strips())[0];
@@ -508,24 +512,24 @@ void CSCSegAlgoUF::GetWireHitFromWireSeg(CSCWireSegment wireSeg, ChamberWireHitC
   double keyWH = wireSeg.keyWG();
   double wgLow = wireSeg.comHitLow();
   double wgHigh = wireSeg.comHitHigh();
-std::cout << "keyWH: " << keyWH << std::endl;
-std::cout << "low: " << wgLow << ", high: " << wgHigh << std::endl;
+//std::cout << "keyWH: " << keyWH << std::endl;
+//std::cout << "low: " << wgLow << ", high: " << wgHigh << std::endl;
 
   for (int i = 0; i < 6; i++) { // loop over 6 layers
       double wHitPos = (wireSeg.wireHits())[i];
       int wHitIndex = -999;
       double wPosDiff = 113; //112 is max one can get
-std::cout << "wpos: " << wHitPos << std::endl;
+//std::cout << "wpos: " << wHitPos << std::endl;
       bool hitMissed = false;
       for (int j = 0; j < int(whits.size()); j++) {
           const CSCWireHit* tmpHit = whits[j];
           int wHitLayer = tmpHit->cscDetId().layer();
           double wHitPos2 = tmpHit->wHitPos();
-if (i==0) std::cout << "wHitPos2: " << wHitPos2 << std::endl;
+//if (i==0) std::cout << "wHitPos2: " << wHitPos2 << std::endl;
           if (wHitLayer != (i+1) ) continue;
 
           if (wHitPos == 0 && abs(keyWH-wHitPos2) <= 2 && (wHitPos2 >= wgLow) && (wHitPos2 <= wgHigh) ) {
-std::cout << "here: " << wHitPos2 << std::endl;
+//std::cout << "here: " << wHitPos2 << std::endl;
              wHitIndex = j; hitMissed=true; break;
 
              }       
@@ -552,14 +556,14 @@ std::cout << "here: " << wHitPos2 << std::endl;
 void CSCSegAlgoUF::GetStripHitFromStripSeg(CSCStripSegment stripSeg, ChamberStripHitContainer shits, int* stripHitIndex) {
 
   double keySH = ceil(stripSeg.keyHalfStrip()/2.0);
-std::cout << "keySH: " << keySH << std::endl;
+//std::cout << "keySH: " << keySH << std::endl;
   double comHitLow = stripSeg.comHitLow(isME11);
   double comHitHigh = stripSeg.comHitHigh(isME11);
-std::cout << "low: " << comHitLow << ", high: " << comHitHigh << std::endl;
+//std::cout << "low: " << comHitLow << ", high: " << comHitHigh << std::endl;
   for (int i = 0; i < 6; i++) {
       double sHitPos_ = (stripSeg.stripHits())[i]; // comparator position in unit of half strip
       double sHitPos = -1;  // strip hit position in unit of strip
-std::cout << "sHitPos_: " << sHitPos_ << std::endl;
+//std::cout << "sHitPos_: " << sHitPos_ << std::endl;
  
       if (!isME11 && (i==0||i==2||i==4) ) sHitPos = ceil((sHitPos_-1)/2.0); // convert comparator number to strip number
       if (isME11 || (!isME11 && (i==1||i==3||i==5) ) ) sHitPos = ceil(sHitPos_/2.0);
@@ -568,12 +572,12 @@ std::cout << "sHitPos_: " << sHitPos_ << std::endl;
       int sHitIndex = -999;
       double sPosDiff = 81;
       bool hitMissed = false;
-std::cout << "sHitPos: " << sHitPos << std::endl;
+//std::cout << "sHitPos: " << sHitPos << std::endl;
       for (int j = 0; j < int(shits.size()); j++) {
           const CSCStripHit* tmpHit = shits[j];
           int sHitLayer = tmpHit->cscDetId().layer();
           double sHitPos2 = tmpHit->sHitPos();
-if (i==0) std::cout << "sHitPos2: " << sHitPos2 << std::endl;
+//if (i==0) std::cout << "sHitPos2: " << sHitPos2 << std::endl;
 
           if ((i+1) != sHitLayer) continue;
 
@@ -591,7 +595,7 @@ if (i==0) std::cout << "sHitPos2: " << sHitPos2 << std::endl;
 
       if ((sPosDiff < 81 && sHitPos >= 1) || (sHitPos==0&&hitMissed) ) {  // this line needs some simplification ! this is really ugly ...
          stripHitIndex[i] = sHitIndex;
-std::cout << "layer:" << i+1 << ", sHitIndex: " << sHitIndex << std::endl;
+//std::cout << "layer:" << i+1 << ", sHitIndex: " << sHitIndex << std::endl;
 
          } else {
                 stripHitIndex[i] = -1;
@@ -613,7 +617,7 @@ CSCSegment CSCSegAlgoUF::doPrune(ChamberHitContainer rechits, CSCSegment oldSeg)
   double chi2Improvement = 1;
   double oldChi2Prob = ChiSquaredProbability( oldSeg.chi2(), oldSeg.degreesOfFreedom() );
 
-std::cout << "doPrune: nRH: " << nHits << std::endl;
+//std::cout << "doPrune: nRH: " << nHits << std::endl;
 
   for (int i = 0; i < nHits; i++) {
 
@@ -633,7 +637,7 @@ std::cout << "doPrune: nRH: " << nHits << std::endl;
       double newChi2Prob = ChiSquaredProbability( temp.chi2(), temp.degreesOfFreedom() );
       if (newChi2Prob < 1e-10) continue;
       if (newChi2Prob/oldChi2Prob < 1e4) continue;
-std::cout << oldChi2Prob << ", " << newChi2Prob << std::endl;
+//std::cout << oldChi2Prob << ", " << newChi2Prob << std::endl;
       if (newChi2Prob/oldChi2Prob > chi2Improvement) {
          updateSeg = true;
          segAfterPrune[i] = temp;
@@ -650,12 +654,15 @@ std::cout << oldChi2Prob << ", " << newChi2Prob << std::endl;
 
      } else {
 
-std::cout << "nRH after: " << segAfterPrune[newSegIndex].nRecHits() << std::endl;
+//std::cout << "nRH after: " << segAfterPrune[newSegIndex].nRecHits() << std::endl;
             return segAfterPrune[newSegIndex];
 
             }
 
 }
+
+
+/*
 
 
 // ----------------  RU ALGO ------------------
@@ -1417,4 +1424,9 @@ void CSCSegAlgoUF::increaseProtoSegment(const CSCRecHit2D* h, int layer, int chi
     proto_segment = oldproto;
     sfit_ = std::move(oldfit);
   }
+
+
+
 }
+
+*/
