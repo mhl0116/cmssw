@@ -24,13 +24,15 @@
 #include "RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h"
 //#include "RecoLocalMuon/CSCRecHitD/src/HardCodedCorrectionInitialization.cc"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-
+#include "CSCSegAlgoST.h"
+#include "CSCCondSegFit.h"
 
 CSCSegAlgoUF::CSCSegAlgoUF(const edm::ParameterSet& ps)
-  : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoUF"), sfit_(nullptr) {
+  : CSCSegmentAlgorithm(ps), ps_(ps), myName("CSCSegAlgoUF"), sfit_(nullptr) {
   doCollisions = ps.getParameter<bool>("doCollisions");
   chi2_str_ = ps.getParameter<double>("chi2_str");
   chi2Norm_2D_ = ps.getParameter<double>("chi2Norm_2D_");
+  chi2Norm_3D_  = ps.getParameter<double>("NormChi2Cut3D");
   dRMax = ps.getParameter<double>("dRMax");
   dPhiMax = ps.getParameter<double>("dPhiMax");
   dRIntMax = ps.getParameter<double>("dRIntMax");
@@ -38,6 +40,8 @@ CSCSegAlgoUF::CSCSegAlgoUF(const edm::ParameterSet& ps)
   chi2Max = ps.getParameter<double>("chi2Max");
   wideSeg = ps.getParameter<double>("wideSeg");
   minLayersApart = ps.getParameter<int>("minLayersApart");
+  prePrun_          = ps.getParameter<bool>("prePrun");
+  prePrunLimit_     = ps.getParameter<double>("prePrunLimit");
 
   LogDebug("CSC") << myName << " has algorithm cuts set to: \n"
 		  << "--------------------------------------------------------------------\n"
@@ -61,7 +65,7 @@ CSCSegAlgoUF::CSCSegAlgoUF(const edm::ParameterSet& ps)
   }
 
   make2DHits_ = new CSCMake2DRecHit( ps );
-
+ 
 }
 
 
@@ -110,7 +114,7 @@ std::vector<CSCSegment> CSCSegAlgoUF::buildSegments(const ChamberWireHitContaine
   int s = theChamber->id().station();
   int r = theChamber->id().ring();
   int c = theChamber->id().chamber();
-//  if (!(e == 1 && s == 1 && r == 4 && c == 17)) return segments;
+//  if (!(e == 2 && s == 1 && r == 4 && c == 3)) return segments;
 
   ChamberWireHitContainer wirehits = uwirehits;
   ChamberStripHitContainer striphits = ustriphits;
@@ -219,7 +223,7 @@ if (int(wireSegs.size()) == 1) {
 //std::cout << "wire pos: " << cscwirehit->wHitPos() << ", strip pos: " << cscstriphit->sHitPos() << std::endl;
 
               CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(detId, cscLayer, wirehit, striphit );
-//std::cout << rechit << std::endl;
+std::cout << rechit << std::endl;
               if (make2DHits_->isHitInFiducial( cscLayer, rechit )) csc2DRecHits.push_back(rechit);
               }
 
@@ -227,6 +231,49 @@ if (int(wireSegs.size()) == 1) {
               for (std::vector<CSCRecHit2D>::const_iterator it = csc2DRecHits.begin(); it != csc2DRecHits.end(); it++)
                   { csc2DRecHits_p.push_back(&(*it)); }
 
+              if (int(csc2DRecHits_p.size()) < 3 ) continue; // why number of hits is 0 ??? or smaller than3, wire and strip hit not found ???
+
+// borrow from ST
+    CSCCondSegFit* segfit = new CSCCondSegFit( pset(), theChamber, csc2DRecHits_p );
+    condpass1 = false;
+    condpass2 = false;
+    segfit->setScaleXError( 1.0 );
+    segfit->fit(condpass1, condpass2);
+
+    if( true ){
+      if(segfit->chi2()/segfit->ndof()>chi2Norm_3D_){
+        condpass1 = true;
+        segfit->fit(condpass1, condpass2);
+      }
+      if(segfit->scaleXError() < 1.00005){
+        LogTrace("CSCWeirdSegment") << "[CSCSegAlgoST::buildSegments] Segment ErrXX scaled and refit " << std::endl;
+        if(segfit->chi2()/segfit->ndof()>chi2Norm_3D_){
+          LogTrace("CSCWeirdSegment") << "[CSCSegAlgoST::buildSegments] Segment ErrXY changed to match cond. number and refit " << std::endl;
+          condpass2 = true;
+          segfit->fit(condpass1, condpass2);
+        }
+      }
+      if(prePrun_ && (sqrt(segfit->scaleXError())>prePrunLimit_) &&
+         (segfit->nhits()>3)){   
+        LogTrace("CSCWeirdSegment") << "[CSCSegAlgoST::buildSegments] Scale factor chi2uCorrection too big, pre-Prune and refit " << std::endl;
+        csc2DRecHits_p.erase(csc2DRecHits_p.begin() + segfit->worstHit(),
+                           csc2DRecHits_p.begin() + segfit->worstHit()+1 );
+        double tempcorr = segfit->scaleXError(); // save current value
+        delete segfit;    
+        segfit = new CSCCondSegFit( pset(), theChamber, csc2DRecHits_p );
+        segfit->setScaleXError( tempcorr ); // reset to previous value (rather than init to 1)
+        segfit->fit(condpass1, condpass2);
+      }
+    }
+
+    CSCSegment temp(csc2DRecHits_p, segfit->intercept(), segfit->localdir(),
+                       segfit->covarianceMatrix(), segfit->chi2() );
+    delete segfit;
+    segments.push_back(temp); 
+
+// borrow from ST
+
+/*
               std::unique_ptr<CSCSegFit> oldfit;
               oldfit.reset(new CSCSegFit( theChamber, csc2DRecHits_p ));
               oldfit->fit();
@@ -237,24 +284,41 @@ if (int(wireSegs.size()) == 1) {
                               sfit_->localdir(), sfit_->covarianceMatrix(), sfit_->chi2());
 
               sfit_ = 0;
-
+              segments.push_back(temp); 
+std::cout << temp << std::endl;
+*/
               // do prune
               // this function return segment , inside function decide update or not
+/*
               if (!(ChiSquaredProbability( temp.chi2(), temp.degreesOfFreedom() ) < 1e-4 && temp.nRecHits() > 3)) {
-                 segments.push_back(temp);
+
+std::cout << "note prune" << std::endl;
+                 segments.push_back(temp); 
+std::cout << temp << std::endl;
                  } else {
                         CSCSegment tempSeg = doPrune(csc2DRecHits_p, temp);
                         segments.push_back(tempSeg);
-                        }
+std::cout << "prune" << std::endl;                 
+std::cout << temp << std::endl;
+//std::cout << ChiSquaredProbability( temp.chi2(), temp.degreesOfFreedom() ) << std::endl;
+std::cout << tempSeg << std::endl;
+//std::cout << tempSeg.chi2() << std::endl;
+///std::cout << tempSeg.degreesOfFreedom() << std::endl;
+//std::cout << ChiSquaredProbability( tempSeg.chi2(), tempSeg.degreesOfFreedom() ) << std::end
 
-//std::cout << temp << std::endl;
+                        }
+*/
               }
             }
 
 //  std::cout << "return " << segments.size() << " 2D segments" << std::endl;
 //  std::cout << std::endl;
 
-  return segments;
+  std::vector<CSCSegment> segments_prune = prune_bad_hits(theChamber, segments); 
+
+//  std::cout << segments_prune[0] << std::endl;
+
+  return segments_prune;
 
 }
 
@@ -302,6 +366,7 @@ void CSCSegAlgoUF::FillStripMatrix(TH2F* shitsMatrix, ChamberStripHitContainer s
          // strip hits contain either 1 or 3 strips: see makeCluster method from RecoLocalMuon/CSCRecHitD/src/CSCHitFromStripOnly.cc
 //std::cout << "layer: " << sLayer << ", sHitPos:  " << shit->sHitPos() << std::endl;
 //std::cout << "layer: " << sLayer << ", strip cluster size:  " << shit->strips().size() << std::endl;
+//for (int i = 0; i < int(shit->strips().size()); i++) {std::cout << (shit->strips())[i] << ", tmax: " <<  shit->tmax() << ", adc: " << (shit->s_adc())[1+4*i] << std::endl;}
          if (int(shit->strips().size()) == 1) {
 
             int sp = (shit->strips())[0];
@@ -320,7 +385,7 @@ void CSCSegAlgoUF::FillStripMatrix(TH2F* shitsMatrix, ChamberStripHitContainer s
          if (int(shit->strips().size()) == 3) {
 
             int sp = (shit->strips())[1];            
-            double leftC = (shit->s_adc())[shit->tmax()]; double rightC = (shit->s_adc())[shit->tmax()+8]; 
+            double leftC = (shit->s_adc())[1]; double rightC = (shit->s_adc())[9]; 
             // above line ugly hardcode, can be improved!
             // reason is for each strip hit, 4 time bins of adc for 3 strips in one strip cluster are saved: CSCHitFromStripOnly.cc
             rows_v.push_back(sLayer-1); data_v.push_back(1);
@@ -365,8 +430,8 @@ void CSCSegAlgoUF::ScanForWireSeg(TH2F* wHitsPerChamber, std::list<CSCWireSegmen
              if (thisNLayer != nLayer) {delete wirePattern; continue;} // 3 or 4 is hardcoded
 
              if (int(wireSegs.size()) == 0 ) {
-//std::cout << "wPattern: " << std::endl; WriteTH2F(wirePattern);
-//std::cout << std::endl;
+std::cout << "wPattern: " << std::endl; WriteTH2F(wirePattern);
+std::cout << std::endl;
                 wireSegs.push_back( CSCWireSegment(thisKeyWG, thisNLayer, wirePattern) );
                 wHitsPerChamber->Add(wirePattern,-1); 
                 delete wirePattern; continue;
@@ -374,8 +439,8 @@ void CSCSegAlgoUF::ScanForWireSeg(TH2F* wHitsPerChamber, std::list<CSCWireSegmen
 
              CSCWireSegment lastSeg = wireSegs.back();
              int lastKeyWG =  lastSeg.keyWG();
-//std::cout << "wPattern: " << std::endl; WriteTH2F(wirePattern);
-//std::cout << std::endl;
+std::cout << "wPattern: " << std::endl; WriteTH2F(wirePattern);
+std::cout << std::endl;
              CSCWireSegment tmpWireSeg = CSCWireSegment(thisKeyWG, thisNLayer, wirePattern);
              if (abs(lastKeyWG-thisKeyWG) > 1) wireSegs.push_back(tmpWireSeg);
              if (abs(lastKeyWG-thisKeyWG) == 1) {
@@ -437,7 +502,14 @@ void CSCSegAlgoUF::ScanForStripSeg(TH2F* sHitsPerChamber, std::list<CSCStripSegm
                        }
 
              TH2F* stripPattern = new TH2F("stripPattern","",nStrips*2+1,0,nStrips*2+1,6,0,6);
-             stripPattern->FillN(nhalfStrips,s_cols_scan,s_rows[j],s_data[j]); 
+
+             double s_rows_tmp[nhalfStrips] = {};
+             if (theStation == 3 || theStation == 4) 
+                for (int k = 0; k < nhalfStrips; k++) s_rows_tmp[k] = 5-s_rows[j][k];
+             else
+                for (int k = 0; k < nhalfStrips; k++) s_rows_tmp[k] = s_rows[j][k];
+
+             stripPattern->FillN(nhalfStrips,s_cols_scan,s_rows_tmp,/*s_rows[j]*/s_data[j]); 
 //if (i == 10) {std::cout << "sPattern: " << std::endl; WriteTH2F(stripPattern);std::cout << std::endl;}
              stripPattern->Multiply(sHitsPerChamber); // scan is done here
 
@@ -451,8 +523,8 @@ void CSCSegAlgoUF::ScanForStripSeg(TH2F* sHitsPerChamber, std::list<CSCStripSegm
 //             sHitsPerChamber->Add(stripPattern,-1); // delete wire group being used
 
              if (int(stripSegs.size()) == 0 ) {
-//std::cout << "sPattern: " << std::endl; WriteTH2F(stripPattern);
-//std::cout << std::endl;
+std::cout << "sPattern: " << std::endl; WriteTH2F(stripPattern);
+std::cout << std::endl;
                 stripSegs.push_back( CSCStripSegment(thisKeyHalfStrip,thisNLayer,thisRank,stripPattern) ); 
                 sHitsPerChamber->Add(stripPattern,-1);
                 delete stripPattern; continue;
@@ -460,8 +532,8 @@ void CSCSegAlgoUF::ScanForStripSeg(TH2F* sHitsPerChamber, std::list<CSCStripSegm
 
              CSCStripSegment lastSeg = stripSegs.back();
              int lastKeyHalfStrip = lastSeg.keyHalfStrip();
-//std::cout << "sPattern: " << std::endl; WriteTH2F(stripPattern);
-//std::cout << std::endl;
+std::cout << "sPattern: " << std::endl; WriteTH2F(stripPattern);
+std::cout << std::endl;
 
              CSCStripSegment tmpStripSeg = CSCStripSegment(thisKeyHalfStrip,thisNLayer,thisRank,stripPattern);
              if (abs(thisKeyHalfStrip - lastKeyHalfStrip) > 1) stripSegs.push_back(tmpStripSeg);
@@ -528,7 +600,7 @@ void CSCSegAlgoUF::GetWireHitFromWireSeg(CSCWireSegment wireSeg, ChamberWireHitC
 //if (i==0) std::cout << "wHitPos2: " << wHitPos2 << std::endl;
           if (wHitLayer != (i+1) ) continue;
 
-          if (wHitPos == 0 && abs(keyWH-wHitPos2) <= 2 && (wHitPos2 >= wgLow) && (wHitPos2 <= wgHigh) ) {
+          if (wHitPos == 0 && /*abs(keyWH-wHitPos2) <= 2 &&*/ (wHitPos2 >= wgLow-1) && (wHitPos2 <= wgHigh+1) ) {
 //std::cout << "here: " << wHitPos2 << std::endl;
              wHitIndex = j; hitMissed=true; break;
 
@@ -581,7 +653,7 @@ void CSCSegAlgoUF::GetStripHitFromStripSeg(CSCStripSegment stripSeg, ChamberStri
 
           if ((i+1) != sHitLayer) continue;
 
-          if (sHitPos == 0 && abs(keySH-sHitPos2)<2 && ((2*sHitPos2-1) >= comHitLow-1.5) && (2*sHitPos2 <= comHitHigh+1.5) ) {
+          if (sHitPos == 0 /*&& abs(keySH-sHitPos2)<2*/ && ((2*sHitPos2) >= comHitLow-2) && (2*sHitPos2-1 <= comHitHigh+2) ) {
              sHitIndex = j; hitMissed = true; break;
              }
 
@@ -662,6 +734,219 @@ CSCSegment CSCSegAlgoUF::doPrune(ChamberHitContainer rechits, CSCSegment oldSeg)
 }
 
 
+std::vector<CSCSegment> CSCSegAlgoUF::prune_bad_hits(const CSCChamber* aChamber, std::vector<CSCSegment> & segments) {
+  
+     std::cout<<"*************************************************************"<<std::endl;
+     std::cout<<"Called prune_bad_hits in Chamber "<< theChamber->specs()->chamberTypeName()<<std::endl;
+     std::cout<<"*************************************************************"<<std::endl;
+ 
+ 
+  std::vector<CSCSegment>          segments_temp;
+  std::vector<ChamberHitContainer> rechits_clusters; // this is a collection of groups of rechits
+  
+  const float chi2ndfProbMin = 1.0e-4;
+  bool   use_brute_force = true;//BrutePruning; hm
+
+  int hit_nr = 0;
+  int hit_nr_worst = -1;
+  //int hit_nr_2ndworst = -1;
+  
+  for(std::vector<CSCSegment>::iterator it=segments.begin(); it != segments.end(); ++it) {
+    
+    // do nothing for nhit <= minHitPerSegment
+    if( (*it).nRecHits() <= 3/*minHitsPerSegment hm*/) continue;
+    
+    if( !use_brute_force ) {// find worst hit
+      
+      float chisq    = (*it).chi2();
+      int nhits      = (*it).nRecHits();
+      LocalPoint localPos = (*it).localPosition();
+      LocalVector segDir = (*it).localDirection();
+      const CSCChamber* cscchamber = theChamber;
+      float globZ       ;
+	  
+      GlobalPoint globalPosition = cscchamber->toGlobal(localPos);
+      globZ = globalPosition.z();
+      
+      
+      if( ChiSquaredProbability((double)chisq,(double)(2*nhits-4)) < chi2ndfProbMin  ) {
+
+	// find (rough) "residuals" (NOT excluding the hit from the fit - speed!) of hits on segment
+	std::vector<CSCRecHit2D> theseRecHits = (*it).specificRecHits();
+	std::vector<CSCRecHit2D>::const_iterator iRH_worst;
+	//float xdist_local       = -99999.;
+
+	float xdist_local_worst_sig = -99999.;
+	float xdist_local_2ndworst_sig = -99999.;
+	float xdist_local_sig       = -99999.;
+
+	hit_nr = 0;
+	hit_nr_worst = -1;
+	//hit_nr_2ndworst = -1;
+
+	for ( std::vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); ++iRH) {
+	  //mark "worst" hit:
+	  
+ 	  //float z_at_target ;
+	  //float radius      ;
+	  float loc_x_at_target;
+	  //float loc_y_at_target;
+	  //float loc_z_at_target;
+
+	  //z_at_target  = 0.;
+	  //radius       = 0.;
+	  
+	  // set the z target in CMS global coordinates:
+	  const CSCLayer* csclayerRH = theChamber->layer((*iRH).cscDetId().layer());
+	  LocalPoint localPositionRH = (*iRH).localPosition();
+	  GlobalPoint globalPositionRH = csclayerRH->toGlobal(localPositionRH);	
+	  
+	  LocalError rerrlocal = (*iRH).localPositionError();  
+	  float xxerr = rerrlocal.xx();
+	  
+	  float target_z     = globalPositionRH.z();  // target z position in cm (z pos of the hit)
+	  
+	  if(target_z > 0.) {
+	    loc_x_at_target = localPos.x() + (segDir.x()/fabs(segDir.z())*( target_z - globZ ));
+	    //loc_y_at_target = localPos.y() + (segDir.y()/fabs(segDir.z())*( target_z - globZ ));
+	    //loc_z_at_target = target_z;
+	  }
+	  else {
+	    loc_x_at_target = localPos.x() + ((-1)*segDir.x()/fabs(segDir.z())*( target_z - globZ ));
+	    //loc_y_at_target = localPos.y() + ((-1)*segDir.y()/fabs(segDir.z())*( target_z - globZ ));
+	    //loc_z_at_target = target_z;
+	  }
+	  // have to transform the segments coordinates back to the local frame... how?!!!!!!!!!!!!
+	  
+	  //xdist_local  = fabs(localPositionRH.x() - loc_x_at_target);
+	  xdist_local_sig  = fabs((localPositionRH.x() -loc_x_at_target)/(xxerr));
+	  
+	  if( xdist_local_sig > xdist_local_worst_sig ) {
+	    xdist_local_2ndworst_sig = xdist_local_worst_sig;
+	    xdist_local_worst_sig    = xdist_local_sig;
+	    iRH_worst            = iRH;
+	    //hit_nr_2ndworst = hit_nr_worst;
+	    hit_nr_worst = hit_nr;
+	  }
+	  else if(xdist_local_sig > xdist_local_2ndworst_sig) {
+	    xdist_local_2ndworst_sig = xdist_local_sig;
+	    //hit_nr_2ndworst = hit_nr;
+	  }
+	  ++hit_nr;
+	}
+
+	// reset worst hit number if certain criteria apply.
+	// Criteria: 2nd worst hit must be at least a factor of
+	// 1.5 better than the worst in terms of sigma:
+	if ( xdist_local_worst_sig / xdist_local_2ndworst_sig < 1.5 ) {
+	  hit_nr_worst    = -1;
+	  //hit_nr_2ndworst = -1;
+	}
+      }
+    }
+
+    // if worst hit was found, refit without worst hit and select if considerably better than original fit.
+    // Can also use brute force: refit all n-1 hit segments and choose one over the n hit if considerably "better"
+   
+    std::vector< CSCRecHit2D > buffer;
+    std::vector< std::vector< CSCRecHit2D > > reduced_segments;
+    std::vector< CSCRecHit2D > theseRecHits = (*it).specificRecHits();
+    float best_red_seg_prob = 0.0;
+    // usefor chi2 1 diff   float best_red_seg_prob = 99999.;
+    buffer.clear();
+
+    if( ChiSquaredProbability((double)(*it).chi2(),(double)((2*(*it).nRecHits())-4)) < chi2ndfProbMin  ) {
+	
+      buffer = theseRecHits;
+
+      // Dirty switch: here one can select to refit all possible subsets or just the one without the 
+      // tagged worst hit:
+      if( use_brute_force ) { // Brute force method: loop over all possible segments:
+	for(size_t bi = 0; bi < buffer.size(); ++bi) {
+	  reduced_segments.push_back(buffer);
+	  reduced_segments[bi].erase(reduced_segments[bi].begin()+(bi),reduced_segments[bi].begin()+(bi+1));
+	}
+      }
+      else { // More elegant but still biased: erase only worst hit
+	// Comment: There is not a very strong correlation of the worst hit with the one that one should remove... 
+	if( hit_nr_worst >= 0 && hit_nr_worst <= int(buffer.size())  ) {
+	  // fill segment in buffer, delete worst hit
+	  buffer.erase(buffer.begin()+(hit_nr_worst),buffer.begin()+(hit_nr_worst+1));
+	  reduced_segments.push_back(buffer);
+	}
+	else {
+	  // only fill segment in array, do not delete anything
+	  reduced_segments.push_back(buffer);
+	}
+      }
+    }
+      
+    // Loop over the subsegments and fit (only one segment if "use_brute_force" is false):
+    for(size_t iSegment=0; iSegment<reduced_segments.size(); ++iSegment) {
+      // loop over hits on given segment and push pointers to hits into protosegment
+      protoSegment.clear();
+      for(size_t m = 0; m<reduced_segments[iSegment].size(); ++m ) {
+	protoSegment.push_back(&reduced_segments[iSegment][m]);
+      }
+
+      // Create fitter object
+      CSCCondSegFit* segfit = new CSCCondSegFit( pset(), theChamber/*chamber() hm*/, protoSegment );
+      condpass1 = false;
+      condpass2 = false;
+      segfit->setScaleXError( 1.0 );
+      segfit->fit(condpass1, condpass2);
+
+      // Attempt to handle numerical instability of the fit;
+      // The same as in the build method;
+      // Preprune is not applied;
+      if( true/*adjustCovariance() hm*/){
+	if(segfit->chi2()/segfit->ndof()>10/*chi2Norm_3D_*/){
+	  condpass1 = true;
+	  segfit->fit(condpass1, condpass2);
+	}
+	if( (segfit->scaleXError() < 1.00005)&&(segfit->chi2()/segfit->ndof()>10/*chi2Norm_3D_*/) ){
+	  condpass2 = true;
+	  segfit->fit(condpass1, condpass2);
+	}
+      }
+    
+      // calculate error matrix 
+      //      AlgebraicSymMatrix temp2 = segfit->covarianceMatrix();
+
+      // build an actual segment
+      CSCSegment temp(protoSegment, segfit->intercept(), segfit->localdir(), 
+                         segfit->covarianceMatrix(), segfit->chi2() );
+
+      // and finished with this fit
+      delete segfit;
+
+      // n-hit segment is (*it)
+      // (n-1)-hit segment is temp
+      // replace n-hit segment with (n-1)-hit segment if segment probability is BPMinImprovement better
+      double oldchi2 = (*it).chi2();
+      double olddof  =  2 * (*it).nRecHits() - 4;
+      double newchi2 = temp.chi2();
+      double newdof  = 2 * temp.nRecHits() - 4;
+      if( ( ChiSquaredProbability(oldchi2,olddof) < (1./10000.0/*BPMinImprovement hm*/)*
+	    ChiSquaredProbability(newchi2,newdof) ) 
+	  && ( ChiSquaredProbability(newchi2,newdof) > best_red_seg_prob )
+	  && ( ChiSquaredProbability(newchi2,newdof) > 1e-10 )
+	) {
+	best_red_seg_prob = ChiSquaredProbability(newchi2,newdof);
+        // The (n-1)- segment is better than the n-hit segment.
+	// If it has at least  minHitsPerSegment  hits replace the n-hit segment
+        // with this  better (n-1)-hit segment:
+        if( temp.nRecHits() >= 3/*minHitsPerSegment hm*/) {
+          (*it) = temp;
+        }
+      }
+    } // end of loop over subsegments (iSegment)
+    
+  } // end loop over segments (it)
+  
+  return segments;
+  
+}
 /*
 
 

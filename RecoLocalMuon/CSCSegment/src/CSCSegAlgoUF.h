@@ -96,6 +96,7 @@ public:
     void GetStripHitFromStripSeg(CSCStripSegment stripSeg, ChamberStripHitContainer shits, int* stripHitIndex);
 
     CSCSegment doPrune(ChamberHitContainer rechits, CSCSegment oldSeg);
+    std::vector< CSCSegment > prune_bad_hits(const CSCChamber* aChamber, std::vector< CSCSegment > & segments);
 
     void WriteTH2F(TH2F* hist);
     //    std::vector<CSCSegment> assambleRechitsInSegments(const ChamberHitContainer& rechits, int iadd, BoolContainer& used, BoolContainer& used3p, int *recHits_per_layer, const LayerIndex& layerIndex, std::vector<CSCSegment> segments);
@@ -113,7 +114,14 @@ public:
     void setConditions ( CSCRecoConditions* reco );
 
 private:
-
+  bool condpass1, condpass2;
+  ChamberHitContainer protoSegment;
+  const edm::ParameterSet& pset(void) const { return ps_;}
+  const edm::ParameterSet ps_;
+  double chi2Norm_3D_;           /// Chi^2 normalization for the initial fit
+  bool prePrun_;                 /// Allow to prune a (rechit in a) segment in segment buld method
+                                 /// once it passed through Chi^2-X and  chi2uCorrection is big.
+  double prePrunLimit_;       
     int nWireGroups;
     int nStrips;
 

@@ -25,9 +25,9 @@ public:
     chi2Norm_ ( ps.getParameter<double>("NormChi2Cut2D") ),
     condSeed1_ ( ps.getParameter<double>("SeedSmall") ),
     condSeed2_ ( ps.getParameter<double>("SeedBig") ),
-    covToAnyNumber_ ( ps.getParameter<bool>("ForceCovariance") ),
-    covToAnyNumberAll_ ( ps.getParameter<bool>("ForceCovarianceAll") ),
-    covAnyNumber_ ( ps.getParameter<double>("Covariance") ) {}
+    covToAnyNumber_ ( false/*ps.getParameter<bool>("ForceCovariance") hm*/),
+    covToAnyNumberAll_ ( false/*ps.getParameter<bool>("ForceCovarianceAll") hm*/ ),
+    covAnyNumber_ ( 0 /*ps.getParameter<double>("Covariance") hm */ ) {}
 
   ~CSCCondSegFit() {}
 
