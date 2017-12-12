@@ -13,7 +13,7 @@ CSCStripSegment::CSCStripSegment(int halfStrip,
 
 {
 
-//   std::cout << "halfstrip#: " << halfStrip << ", patternRank: " << patternRank << std::endl;
+   std::cout << "halfstrip#: " << halfStrip << ", patternRank: " << patternRank << ", nLayer: " << nLayer << std::endl;
 
    TH1D* sHitHists[6];
    TH1D* nHitHists = stripSegHist->ProjectionY("nLayerHits",0,-1);
