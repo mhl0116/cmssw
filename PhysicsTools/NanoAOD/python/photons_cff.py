@@ -228,6 +228,9 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         isScEtaEB = Var("abs(superCluster().eta()) < 1.4442",bool,doc="is supercluster eta within barrel acceptance"),
         isScEtaEE = Var("abs(superCluster().eta()) > 1.566 && abs(superCluster().eta()) < 2.5",bool,doc="is supercluster eta within endcap acceptance"),
         seedGain = Var("userInt('seedGain')","uint8",doc="Gain of the seed crystal"),
+        chargedHadronIso = Var("chargedHadronIso()",float,doc="charged hadron isolation with dxy,dz match to pv",precision=10),
+        photonIso = Var("photonIso()",float,doc="photon iso",precision=10),
+        trkSumPtHollowConeDR03 = Var("trkSumPtHollowConeDR03()",float,doc="Sum of track pT in a hollow cone of outer radius, inner radius",precision=10),
     )
 )
 
