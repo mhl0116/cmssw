@@ -119,3 +119,5 @@ process = addMonitoring(process)
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
 # End adding early deletion
+
+process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/mc/RunIIAutumn18MiniAOD/ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/260000/27891EA5-F05F-5648-AD45-1D47EC8BE543.root"))
