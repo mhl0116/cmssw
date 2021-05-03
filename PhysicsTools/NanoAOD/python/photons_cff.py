@@ -239,6 +239,9 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 for modifier in run2_egamma_2016,run2_egamma_2017,run2_egamma_2018,run2_nanoAOD_94XMiniAODv1, run2_miniAOD_80XLegacy, run2_nanoAOD_102Xv1,run2_nanoAOD_94XMiniAODv2:
     modifier.toModify(photonTable.variables,
         pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
+        rawpt = Var("pt", float, precision=-1, doc="raw p_{T}"),
+        ecalEnergyPostCorr = Var("userFloat('ecalEnergyPostCorrNew')", float, precision=-1, doc=""),
+        ecalEnergyPreCorr = Var("userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc=""),
         energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
         eCorr = Var("userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')",float,doc="ratio of the calibrated energy/miniaod energy"),
     )
